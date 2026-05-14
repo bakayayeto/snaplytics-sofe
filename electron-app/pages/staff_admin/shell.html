@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" class="shell-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heigen – Staff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/notif.css">
+    <link rel="stylesheet" href="../../styles/theme-dark.css">
+    <script src="../../scripts/theme.js"></script>
+    <script src="../../scripts/alert-modal.js"></script>
+</head>
+<body class="staff-body min-h-screen">
+    <div id="mobileOverlay" class="mobile-overlay"></div>
+
+    <div id="sidebar" class="sidebar">
+        <button type="button" class="close-btn" onclick="toggleMobileSidebar(false)">✕</button>
+        <div class="sidebar-brand-column flex flex-col items-center gap-3 pt-6 pb-8 px-4">
+            <div class="sidebar-brand-wrap rounded-2xl bg-white/10 px-5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] ring-1 ring-white/15">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/0fdade257f0aa6c53979aa05f0c346a41b70e926?width=475"
+                     alt="Heigen Logo" class="sidebar-logo-expanded w-[200px] h-[82px] object-contain object-center">
+                <img src="https://cdn.builder.io/api/v1/image/assets%2F44110a21a8084c3ca12bd1cab5fb0319%2F8f239903328d456d91fb45d686753de2?format=webp&width=800&height=1200"
+                     alt="" class="sidebar-logo-collapsed object-contain object-center mx-auto" aria-hidden="true" loading="eager">
+            </div>
+        </div>
+        <nav class="flex flex-col w-full px-6 gap-[18px] flex-1 overflow-y-auto">
+            <div class="flex flex-col gap-1.5">
+                <a href="#" data-nav="dashboard.html" id="nav-dashboard" class="sidebar-nav-item is-active">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#shdash)"><path d="M3 21.976C2.73478 21.976 2.48043 21.8706 2.29289 21.6831C2.10536 21.4956 2 21.2412 2 20.976V0H0V20.976C0 21.7716 0.31607 22.5347 0.87868 23.0973C1.44129 23.6599 2.20435 23.976 3 23.976H24V21.976H3Z" fill="currentColor"/><path d="M7 12H5V19H7V12Z" fill="currentColor"/><path d="M12 9.99988H10V18.9999H12V9.99988Z" fill="currentColor"/><path d="M17 12.9999H15V18.9999H17V12.9999Z" fill="currentColor"/><path d="M22 9H20V19H22V9Z" fill="currentColor"/><path d="M11 4.41397L16 9.41397L23.707 1.70697L22.293 0.292969L16 6.58597L11 1.58597L5.29297 7.29297L6.70697 8.70697L11 4.41397Z" fill="currentColor"/></g><defs><clipPath id="shdash"><rect width="24" height="24" fill="white"/></clipPath></defs></svg>
+                    Dashboard
+                </a>
+                <a href="#" data-nav="customers.html" id="nav-customers" class="sidebar-nav-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 17H4C3.44772 17 3 16.5523 3 16C3 14.3431 4.34315 13 6 13H7M7 9.94999C5.85888 9.71836 5 8.70948 5 7.5C5 6.11929 6.11929 5 7.5 5C8.06291 5 8.58237 5.18604 9.00024 5.5M19.5002 17H20.0002C20.5525 17 21.0002 16.5523 21.0002 16C21.0002 14.3431 19.6571 13 18.0002 13H17.0002M17.0002 9.94999C18.1414 9.71836 19.0002 8.70948 19.0002 7.5C19.0002 6.11929 17.881 5 16.5002 5C15.9373 5 15.4179 5.18604 15 5.5M15.5 19H8.5C7.94771 19 7.5 18.5523 7.5 18C7.5 16.3431 8.84314 15 10.5 15H13.5C15.1569 15 16.5 16.3431 16.5 18C16.5 18.5523 16.0523 19 15.5 19ZM14.5 9.5C14.5 10.8807 13.3807 12 12 12C10.6193 12 9.5 10.8807 9.5 9.5C9.5 8.11929 10.6193 7 12 7C13.3807 7 14.5 8.11929 14.5 9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Customer Data
+                </a>
+                <a href="#" data-nav="packages.html" id="nav-packages" class="sidebar-nav-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 4H18C18.5523 4 19 4.44772 19 5V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V5C5 4.44772 5.44772 4 6 4H9M9 7H15M9 12H15M9 16H15M10 3V7H14V3H10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Package List
+                </a>
+                <a href="#" data-nav="coupons.html" class="sidebar-nav-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    Coupon/Points
+                </a>
+                <a href="#" data-nav="action-logs.html" id="nav-action-logs" class="sidebar-nav-item hidden">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"></path>
+                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9"></path>
+                    </svg>
+                    Action Logs
+                </a>
+                <a href="#" data-nav="manage-accounts.html" id="nav-manage-accounts" class="sidebar-nav-item hidden">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Manage Accounts
+                </a>
+                <a href="#" data-nav="recycle-bin.html" id="nav-recycle-bin" class="sidebar-nav-item hidden">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Internal Records
+                </a>
+            </div>
+            <div class="w-full h-px bg-white/20 my-3"></div>
+            <div class="flex flex-col gap-1.5">
+                <a href="#" data-nav="profile.html" id="nav-profile" class="sidebar-nav-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 21C13.7608 21.0019 15.483 20.4843 16.951 19.512C16.835 18.5451 16.3691 17.6541 15.6412 17.0071C14.9133 16.3601 13.9739 16.0019 13 16H11C10.0261 16.0019 9.08665 16.3601 8.35879 17.0071C7.63092 17.6541 7.16502 18.5451 7.049 19.512C8.51698 20.4843 10.2392 21.0019 12 21ZM15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Profile
+                </a>
+                <a href="#" onclick="openShellLogoutModal(event)" class="sidebar-nav-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.35294 16.2V18.3C9.35294 18.8569 9.57605 19.3911 9.97319 19.7849C10.3703 20.1787 10.909 20.4 11.4706 20.4L18.8824 20.4C19.444 20.4 19.9826 20.1787 20.3798 19.7849C20.7769 19.3911 21 18.8569 21 18.3L21 5.69998C21 5.14302 20.7769 4.60888 20.3798 4.21505C19.9826 3.82123 19.444 3.59998 18.8824 3.59998L11.4706 3.59998C10.909 3.59998 10.3703 3.82123 9.97319 4.21505C9.57605 4.60888 9.35294 5.14302 9.35294 5.69998V7.79998M15.7059 12L3 12M3 12L6.17647 15.15M3 12L6.17647 8.84998" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Logout
+                </a>
+            </div>
+        </nav>
+        <div class="sidebar-bottom-stack" aria-label="Sidebar tools">
+            <button type="button" id="heigenThemeToggle" class="sidebar-theme-toggle" aria-pressed="false" aria-label="Switch to dark mode" title="Dark mode">
+                <svg class="theme-toggle-icon theme-toggle-icon--moon" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+                <svg class="theme-toggle-icon theme-toggle-icon--sun" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" hidden><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 6.34l1.41 1.41M16.24 16.24l1.41 1.41M6.34 17.66l1.41-1.41M16.24 7.76l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="shell-frame-wrap">
+        <iframe id="staffFrame" class="staff-app-iframe" title="Admin content" tabindex="-1" src="dashboard.html?embed=1"></iframe>
+    </div>
+
+    <div id="shellKioskModal" class="fixed inset-0 z-[110] hidden items-center justify-center p-3 staff-modal-overlay">
+        <div class="bg-white rounded-2xl shadow-2xl w-[96vw] h-[94vh] p-4 flex flex-col border border-[#E3EAED]">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <div class="flex items-center gap-2 text-[#4F6E79] text-sm font-semibold">
+                    <span id="shellKioskStatusDot" class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+                    <span id="shellKioskStatusText">Checking kiosk server...</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openKioskInBrowserFromShell()" class="px-3 h-8 rounded-full border border-[#165166] text-[#165166] text-xs font-bold hover:bg-gray-50">Open in Browser</button>
+                    <button type="button" onclick="reloadShellKiosk()" class="px-3 h-8 rounded-full bg-[#165166] text-white text-xs font-bold hover:bg-[#0d3d4d]">Retry / Reload</button>
+                    <button type="button" onclick="closeShellKioskModal()" class="w-8 h-8 rounded-full border border-gray-300 text-gray-600 text-lg leading-none hover:bg-gray-50">×</button>
+                </div>
+            </div>
+            <iframe id="shellKioskFrame" class="w-full flex-1 min-h-0 rounded-xl border border-gray-200 bg-[#f8fafc]" style="display:none;" title="Kiosk Web App"></iframe>
+            <div id="shellKioskFallback" class="hidden rounded-xl border border-dashed border-gray-300 bg-[#f8fafc] p-5 text-[#5F6E79]">
+                <h3 class="text-lg font-bold text-[#165166] mb-2">Kiosk app is not running</h3>
+                <p class="mb-2">Start the kiosk web server, then click <strong>Retry / Reload</strong>.</p>
+                <p class="font-mono text-sm bg-white border border-gray-200 rounded-lg p-2">cd HeigenKiosk && npm start</p>
+                <p class="mt-2 text-xs">Expected URL: <span id="shellKioskUrlText" class="font-mono"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="booking-status-panel-overlay" id="bookingStatusOverlay" onclick="closeBookingStatusPanel()"></div>
+    <div class="booking-status-panel" id="bookingStatusPanel" style="display:none;">
+        <div class="booking-status-header">
+            <h2>BOOKING STATUS</h2>
+            <button class="close-panel-btn" onclick="closeBookingStatusPanel()">×</button>
+        </div>
+        <div class="booking-status-content" id="bookingStatusContent"></div>
+    </div>
+    <button class="global-refresh-btn" id="globalRefreshBtn" aria-label="Refresh" onclick="refreshPage()" title="Refresh">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+    </button>
+    <button class="global-kiosk-btn" id="globalKioskBtn" aria-label="Open Kiosk" onclick="openKioskFromShell()" title="Open Kiosk">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/>
+        </svg>
+    </button>
+    <button class="floating-notification-btn" id="floatingNotificationBtn" aria-label="Notifications" onclick="toggleBookingStatusPanel()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M4.508 17.625H19.493c.416 0 .652-.664.407-1.044C19.333 15.7 18.781 14.4 18.781 12.835L18.806 10.693C18.806 6.444 15.759 3 12 3 8.296 3 5.293 6.394 5.293 10.581L5.269 12.835c0 1.556-.572 2.847-1.163 3.728C3.851 16.942 4.086 17.625 4.508 17.625Z" fill="white"/>
+            <path d="M9.333 21C9.333 22.1 10.1 23 12 23c1.9 0 2.667-.9 2.667-2H9.333Z" fill="white"/>
+        </svg>
+        <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+    </button>
+    <style>
+        #globalRefreshBtn { bottom: 170px; right: 30px; }
+        #globalKioskBtn { bottom: 100px; right: 30px; }
+        #floatingNotificationBtn { bottom: 30px; right: 30px; }
+    </style>
+
+    <script src="../../scripts/heigen-api.js"></script>
+    <script src="../../scripts/api-client.js"></script>
+    <script src="../../scripts/staff-auth.js"></script>
+    <script src="../../scripts/notif.js"></script>
+    <script src="../../scripts/staff-guard.js"></script>
+    <script src="../../scripts/staff-shell.js"></script>
+</body>
+</html>

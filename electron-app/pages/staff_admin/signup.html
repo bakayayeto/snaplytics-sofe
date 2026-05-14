@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="../../scripts/theme.js"></script>
+
+        <!-- Tailwind -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Custom CSS (correct path for /pages) -->
+        <link rel="stylesheet" href="../../styles/main.css" />
+        <link rel="stylesheet" href="../../styles/theme-dark.css" />
+        <script src="../../scripts/alert-modal.js"></script>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Segoe+UI:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+
+    <body class="auth-body min-h-screen">
+        <!-- PAGE CONTENT -->
+        <div
+            id="signup-screen"
+            class="relative min-h-screen w-full flex items-center justify-center overflow-hidden"
+        >
+            <!-- Background image -->
+            <img
+                src="https://api.builder.io/api/v1/image/assets/TEMP/a1ef3d09429c4b2a9a729acef3e490d3cfd0c7d5?width=3072"
+                alt="Background"
+                class="absolute inset-0 w-full h-full object-cover"
+            />
+
+            <!-- Card -->
+            <div class="relative z-10 w-full max-w-4xl mx-4">
+                <div class="heigen-gradient rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10">
+                    <div class="flex justify-center mb-6">
+                        <img
+                            src="https://api.builder.io/api/v1/image/assets/TEMP/de54f4d2deecf022c8231c8fc79cb6aaefa92c17?width=444"
+                            alt="Heigen Logo"
+                            class="h-16 sm:h-20 w-auto"
+                        />
+                    </div>
+
+                    <div class="text-center mb-6">
+                        <h1 class="text-white text-2xl font-bold mb-2">
+                            Create Staff Account
+                        </h1>
+                        <p class="text-white text-sm font-semibold">
+                            Admin or Owner — add a new staff login.
+                        </p>
+                    </div>
+
+                    <form id="signup-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-x-5 md:gap-y-4">
+                        <div>
+                            <label
+                                for="signup-first-name"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >First name</label
+                            >
+                            <input
+                                type="text"
+                                id="signup-first-name"
+                                required
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Enter first name"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="signup-last-name"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >Last name</label
+                            >
+                            <input
+                                type="text"
+                                id="signup-last-name"
+                                required
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Enter last name"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="signup-phone-number"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >Phone number (optional)</label
+                            >
+                            <input
+                                type="text"
+                                id="signup-phone-number"
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Enter phone number"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="signup-nickname"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >Nickname (optional)</label
+                            >
+                            <input
+                                type="text"
+                                id="signup-nickname"
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Enter nickname"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="signup-username"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >Username (optional)</label
+                            >
+                            <input
+                                type="text"
+                                id="signup-username"
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Leave blank to set during onboarding"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="signup-email"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >E-mail</label
+                            >
+                            <input
+                                type="email"
+                                id="signup-email"
+                                required
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Enter your email"
+                            />
+                        </div>
+
+                        <div id="signup-role-wrap">
+                            <label
+                                for="signup-role"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >Role</label
+                            >
+                            <select
+                                id="signup-role"
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                            >
+                                <option value="STAFF">STAFF</option>
+                                <option value="ADMIN">ADMIN</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                for="signup-password"
+                                class="block text-white text-sm font-semibold mb-1"
+                                >Password (optional)</label
+                            >
+                            <input
+                                type="password"
+                                id="signup-password"
+                                class="w-full h-11 px-4 rounded-md text-gray-800 text-sm"
+                                placeholder="Leave blank to use default password (123456)"
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn-primary w-full h-10 rounded-md text-white text-base font-bold md:col-span-2 mt-1"
+                        >
+                            Create
+                        </button>
+
+                        <div class="flex items-center justify-center md:col-span-2 pt-1">
+                            <button
+                                type="button"
+                                onclick="navigateTo('../../index.html')"
+                                class="link-button text-white text-sm font-bold"
+                            >
+                                Sign in
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="../../scripts/heigen-api.js"></script>
+        <script src="../../scripts/staff-guard.js"></script>
+        <script src="../../scripts/heigen-app.js"></script>
+    <script src="../../scripts/staff-profile.js"></script>
+    <script src="../../scripts/staff-embed.js"></script>
+    </body>
+</html>

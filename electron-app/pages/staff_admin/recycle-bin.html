@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../scripts/theme.js"></script>
+    <title>Heigen - Internal Records</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/customers.css">
+    <link rel="stylesheet" href="../../styles/theme-dark.css">
+    <script src="../../scripts/alert-modal.js"></script>
+</head>
+<body class="staff-body h-screen overflow-hidden flex flex-col">
+    <div class="main-content flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div class="header staff-shell-header">
+            <div class="staff-header-start">
+                <h1 class="staff-page-title truncate">Internal Records</h1>
+            </div>
+            <div class="staff-header-user">
+                <div class="staff-header-user-meta">
+                    <div class="staff-header-user-name" data-user-name>—</div>
+                    <div class="staff-header-user-role" data-user-role>—</div>
+                </div>
+                <img src="" alt="User Avatar" class="staff-header-avatar" data-user-avatar>
+            </div>
+        </div>
+
+        <main class="staff-main flex-1 min-h-0">
+            <div class="max-w-[1140px] mx-auto w-full box-border px-4 pb-14 sm:px-5 space-y-8">
+            <div class="flex items-center justify-end gap-2 pb-1">
+                <button type="button" id="recycleRefreshBtn" class="staff-btn-primary min-h-[32px] text-xs px-5 shrink-0">Refresh</button>
+            </div>
+
+            <div id="recycleLoading" class="staff-loading-panel py-16">
+                <div class="heigen-spinner" aria-hidden="true"></div>
+                <p class="staff-muted-text font-semibold text-sm">Loading Internal Records…</p>
+            </div>
+
+            <div id="recycleError" class="hidden rounded-xl border border-red-200 bg-red-50 text-red-800 text-sm font-semibold p-4"></div>
+
+            <div id="recycleEmpty" class="hidden heigen-surface rounded-2xl p-8 text-center staff-muted-text font-semibold">
+                Internal Records is empty.
+            </div>
+
+            <div id="recycleSections" class="hidden flex flex-col gap-12 sm:gap-14"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../scripts/api-client.js"></script>
+    <script src="../../scripts/heigen-api.js"></script>
+    <script src="../../scripts/staff-auth.js"></script>
+    <script src="../../scripts/staff-guard.js"></script>
+    <script src="../../scripts/staff-profile.js"></script>
+    <script src="../../scripts/staff-embed.js"></script>
+    <script src="../../scripts/recycle-bin.js"></script>
+</body>
+</html>

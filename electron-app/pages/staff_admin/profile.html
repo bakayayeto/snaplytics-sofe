@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../scripts/theme.js"></script>
+    <title>Heigen – Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/customers.css">
+    <link rel="stylesheet" href="../../styles/notif.css">
+    <link rel="stylesheet" href="../../styles/theme-dark.css">
+    <script src="../../scripts/alert-modal.js"></script>
+</head>
+<body class="staff-body h-screen overflow-hidden flex flex-col">
+    <!-- Mobile Overlay -->
+    
+
+    <!-- Main Content -->
+    <div class="main-content flex flex-col flex-1 min-h-0 overflow-hidden">
+        <!-- Header -->
+        <div class="header staff-shell-header">
+            <div class="staff-header-start">
+                <h1 class="staff-page-title truncate">Profile</h1>
+            </div>
+            <div class="staff-header-user">
+                <div class="staff-header-user-meta">
+                    <div class="staff-header-user-name" data-user-name>—</div>
+                    <div class="staff-header-user-role" data-user-role>—</div>
+                </div>
+                <img src="" alt="User Avatar" class="staff-header-avatar" data-user-avatar>
+            </div>
+        </div>
+
+        <div class="staff-main flex-1 min-h-0">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <div class="staff-toolbar-surface space-y-1">
+                    <p class="staff-eyebrow">Your account</p>
+                    <p class="staff-page-lead">Update how you appear to colleagues and manage your login details. Email and role are controlled by an administrator.</p>
+                </div>
+
+                <div class="heigen-surface p-6 sm:p-7">
+                    <h2 class="staff-section-title">Profile photo</h2>
+                    <div class="flex flex-col md:flex-row md:items-center gap-6">
+                        <img
+                            id="profile-photo"
+                            data-user-avatar
+                            src=""
+                            alt="Profile"
+                            class="w-[88px] h-[88px] rounded-full object-cover bg-[#E8F0F2] ring-2 ring-white shadow-[0_4px_20px_rgba(22,81,102,0.12)] mx-auto md:mx-0"
+                        />
+                        <div class="text-center md:text-left flex-1 min-w-0">
+                            <p id="profile-name" class="text-lg font-extrabold text-[#4F6E79] tracking-tight">—</p>
+                            <p id="profile-role" class="text-sm font-semibold text-[#5F6E79] mt-0.5">—</p>
+                        </div>
+                        <label class="staff-btn-primary cursor-pointer mx-auto md:mx-0 md:ml-auto shrink-0">
+                            Upload photo
+                            <input id="profile-photo-file" type="file" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                    <div class="mt-5 flex flex-col sm:flex-row gap-3 sm:items-center">
+                        <input
+                            id="profile-photo-url"
+                            type="url"
+                            placeholder="Or paste an image URL"
+                            class="staff-input sm:flex-1"
+                        />
+                        <button type="button" id="save-photo-btn" class="staff-btn-secondary min-h-[40px] shrink-0">
+                            Save photo
+                        </button>
+                        <span id="photo-status" class="text-xs font-semibold text-[#5F6E79] sm:min-w-[7rem]"></span>
+                    </div>
+                </div>
+
+                <div class="heigen-surface p-6 sm:p-7">
+                    <h2 class="staff-section-title">Personal info</h2>
+                    <div class="divide-y divide-[rgba(22,81,102,0.08)]">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4 first:pt-0">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Full name</span>
+                            <div class="md:col-span-3 flex flex-col gap-2">
+                                <input id="profile-first-name" type="text" placeholder="First name" class="staff-input text-sm" />
+                                <input id="profile-last-name" type="text" placeholder="Last name" class="staff-input text-sm" />
+                            </div>
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Shown on bookings and internal lists.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-name-btn" class="staff-btn-ghost text-sm">Save name</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Phone</span>
+                            <input id="profile-phone-number" type="tel" class="md:col-span-3 staff-input text-sm" placeholder="Phone number" />
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Used when the team needs to reach you.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-phone-btn" class="staff-btn-ghost text-sm">Save phone</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Date of birth</span>
+                            <input id="profile-date-of-birth" type="date" class="md:col-span-3 staff-input text-sm" />
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Optional; kept with your staff record.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-dob-btn" class="staff-btn-ghost text-sm">Save DOB</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4 last:pb-0">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Nickname</span>
+                            <input id="profile-nickname" type="text" class="md:col-span-3 staff-input text-sm" placeholder="Nickname" />
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Informal name shown where space is tight.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-nickname-btn" class="staff-btn-ghost text-sm">Save nickname</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="heigen-surface p-6 sm:p-7">
+                    <h2 class="staff-section-title">Account &amp; security</h2>
+                    <div class="divide-y divide-[rgba(22,81,102,0.08)]">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4 first:pt-0">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Username</span>
+                            <input id="profile-username" type="text" class="md:col-span-3 staff-input text-sm" placeholder="Username" />
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Used with your password to sign in.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-username-btn" class="staff-btn-ghost text-sm">Save username</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Email</span>
+                            <input id="profile-email" data-user-email type="email" class="md:col-span-3 staff-input text-sm" placeholder="Email" />
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Primary login identifier.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-email-btn" class="staff-btn-ghost text-sm">Save email</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Role</span>
+                            <span id="profile-role-text" class="md:col-span-3 text-sm font-bold text-[#4F6E79]">—</span>
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Only an owner can change your role.</span>
+                            <span class="md:col-span-2 text-xs font-semibold text-[#9AA8AF] md:text-right">Read only</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center py-4 last:pb-0">
+                            <span class="md:col-span-2 text-sm font-semibold text-[#5F6E79]">Password</span>
+                            <div class="md:col-span-3 flex flex-col gap-2">
+                                <input id="profile-new-password" type="password" placeholder="New password" class="staff-input text-sm" />
+                                <input id="profile-confirm-password" type="password" placeholder="Confirm password" class="staff-input text-sm" />
+                            </div>
+                            <span class="md:col-span-5 text-sm text-[#5F6E79]/90 leading-snug">Choose a strong password you do not use elsewhere.</span>
+                            <div class="md:col-span-2 flex md:justify-end">
+                                <button type="button" id="save-password-btn" class="staff-btn-ghost text-sm">Save password</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../scripts/heigen-api.js"></script>
+    <script src="../../scripts/staff-auth.js"></script>
+    <script src="../../scripts/staff-guard.js"></script>
+    <script src="../../scripts/heigen-app.js"></script>
+    <script src="../../scripts/staff-profile.js"></script>
+    <script src="../../scripts/profile-page.js"></script>
+        <!-- ── NOTIFICATION PANEL (shared across all pages) ── -->
+        <div class="booking-status-panel-overlay" id="bookingStatusOverlay" onclick="closeBookingStatusPanel()"></div>
+        <div class="booking-status-panel" id="bookingStatusPanel" style="display:none;">
+            <div class="booking-status-header">
+                <h2>BOOKING STATUS</h2>
+                <button class="close-panel-btn" onclick="closeBookingStatusPanel()">×</button>
+            </div>
+            <div class="booking-status-content" id="bookingStatusContent"></div>
+        </div>
+        <!-- ── FLOATING NOTIFICATION BUTTON ── -->
+        <button class="floating-notification-btn" id="floatingNotificationBtn"
+                aria-label="Notifications" onclick="toggleBookingStatusPanel()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M4.50763 17.625H19.4933C19.9097 17.625 20.1458 16.961 19.9006 16.5805C19.3329 15.6996 18.7814 14.401 18.7814 12.835L18.8058 10.6931C18.8058 6.44431 15.7588 3 12 3C8.29581 3 5.29296 6.39431 5.29296 10.5814L5.26855 12.835C5.26855 14.3903 4.69736 15.6818 4.10557 16.5624C3.85054 16.9419 4.08602 17.625 4.50763 17.625Z" fill="white"/>
+                <path d="M9.33333 21C9.33333 22.1 10.1 23 12 23C13.9 23 14.6667 22.1 14.6667 21H9.33333Z" fill="white"/>
+            </svg>
+            <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+        </button>
+        <!-- ── GLOBAL REFRESH BUTTON ── -->
+        <button class="global-refresh-btn" id="globalRefreshBtn"
+                aria-label="Refresh" onclick="refreshPage()" title="Refresh">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+        </button>
+        <!-- ── PAGE LOADING OVERLAY ── -->
+        <div class="page-loading-overlay" id="pageLoadingOverlay" style="display:none;">
+            <div class="spinner"></div>
+            <div class="loading-label">Loading…</div>
+        </div>
+        <script src="../../scripts/api-client.js"></script>
+        <script src="../../scripts/notif.js"></script>
+        <script src="../../scripts/staff-embed.js"></script>
+
+    </body>
+</html>

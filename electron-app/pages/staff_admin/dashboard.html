@@ -1,0 +1,868 @@
+<!-- pages/staff_admin/dashboard.html -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="../../scripts/theme.js"></script>
+        <title>Heigen Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+        <script src="../../scripts/alert-modal.js"></script>
+        <script src="../../scripts/package-flow.js"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Segoe+UI:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../../styles/main.css" />
+        <link rel="stylesheet" href="../../styles/customers.css" />
+        <link rel="stylesheet" href="../../styles/notif.css" />
+        <link rel="stylesheet" href="../../styles/theme-dark.css" />
+    </head>
+    <body class="staff-body staff-body--flat-page h-screen overflow-hidden flex flex-col">
+        <!-- Mobile Overlay -->
+        
+
+        <!-- Sidebar -->
+        <template id="legacy-sidebar">
+            <button class="close-btn" onclick="toggleMobileSidebar(false)">
+                ✕
+            </button>
+
+            <div class="flex flex-col items-center gap-3 pt-6 pb-8">
+                <img
+                    src="https://api.builder.io/api/v1/image/assets/TEMP/0fdade257f0aa6c53979aa05f0c346a41b70e926?width=475"
+                    alt="Heigen Logo"
+                    class="w-[220px] h-[90px]"
+                />
+            </div>
+            <nav
+                class="flex flex-col w-full px-6 gap-[18px] flex-1 overflow-y-auto"
+            >
+                <div class="flex flex-col gap-1.5">
+                    <a
+                        href="dashboard.html"
+                        onclick="navigateTo('./dashboard.html')"
+                        id="nav-dashboard"
+                        class="sidebar-nav-item is-active"
+                    >
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <g clip-path="url(#clip0_521_1728)">
+                                <path
+                                    d="M3 21.976C2.73478 21.976 2.48043 21.8706 2.29289 21.6831C2.10536 21.4956 2 21.2412 2 20.976V0H0V20.976C0 21.7716 0.31607 22.5347 0.87868 23.0973C1.44129 23.6599 2.20435 23.976 3 23.976H24V21.976H3Z"
+                                    fill="currentColor"
+                                />
+                                <path
+                                    d="M7 12H5V19H7V12Z"
+                                    fill="currentColor"
+                                />
+                                <path
+                                    d="M12 9.99988H10V18.9999H12V9.99988Z"
+                                    fill="currentColor"
+                                />
+                                <path
+                                    d="M17 12.9999H15V18.9999H17V12.9999Z"
+                                    fill="currentColor"
+                                />
+                                <path
+                                    d="M22 9H20V19H22V9Z"
+                                    fill="currentColor"
+                                />
+                                <path
+                                    d="M11 4.41397L16 9.41397L23.707 1.70697L22.293 0.292969L16 6.58597L11 1.58597L5.29297 7.29297L6.70697 8.70697L11 4.41397Z"
+                                    fill="currentColor"
+                                />
+                            </g>
+                        </svg>
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="customers.html"
+                        onclick="navigateTo('./customers.html')"
+                        id="nav-customers"
+                        class="sidebar-nav-item"
+                    >
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M4.5 17H4C3.44772 17 3 16.5523 3 16C3 14.3431 4.34315 13 6 13H7M7 9.94999C5.85888 9.71836 5 8.70948 5 7.5C5 6.11929 6.11929 5 7.5 5C8.06291 5 8.58237 5.18604 9.00024 5.5M19.5002 17H20.0002C20.5525 17 21.0002 16.5523 21.0002 16C21.0002 14.3431 19.6571 13 18.0002 13H17.0002M17.0002 9.94999C18.1414 9.71836 19.0002 8.70948 19.0002 7.5C19.0002 6.11929 17.881 5 16.5002 5C15.9373 5 15.4179 5.18604 15 5.5M15.5 19H8.5C7.94771 19 7.5 18.5523 7.5 18C7.5 16.3431 8.84314 15 10.5 15H13.5C15.1569 15 16.5 16.3431 16.5 18C16.5 18.5523 16.0523 19 15.5 19ZM14.5 9.5C14.5 10.8807 13.3807 12 12 12C10.6193 12 9.5 10.8807 9.5 9.5C9.5 8.11929 10.6193 7 12 7C13.3807 7 14.5 8.11929 14.5 9.5Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+                        Customer Data
+                    </a>
+
+                    <a
+                        href="packages.html"
+                        id="nav-packages"
+                        class="sidebar-nav-item"
+                    >
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M15 4H18C18.5523 4 19 4.44772 19 5V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V5C5 4.44772 5.44772 4 6 4H9M9 7H15M9 12H15M9 16H15M10 3V7H14V3H10Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                        Package List
+                    </a>
+
+                    <a
+                        href="coupons.html"
+                        class="sidebar-nav-item"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                            <line x1="7" y1="7" x2="7.01" y2="7"/>
+                        </svg>
+                        Coupon/Points
+                    </a>
+
+                    <a href="action-logs.html" id="nav-action-logs" class="sidebar-nav-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12l2 2 4-4"></path>
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9"></path>
+                        </svg>
+                        Action Logs
+                    </a>
+                    <a href="manage-accounts.html" id="nav-manage-accounts" class="sidebar-nav-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Manage Accounts
+                    </a>
+                    <a href="recycle-bin.html" id="nav-recycle-bin" class="sidebar-nav-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 6h18"></path>
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Internal Records
+                    </a>
+                </div>
+
+                <div class="w-full h-px bg-white/20 my-3"></div>
+
+                <div class="flex flex-col gap-1.5">
+                    <a
+                        href="profile.html"
+                        onclick="navigateTo('./profile.html')"
+                        id="nav-profile"
+                        class="sidebar-nav-item"
+                    >
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 21C13.7608 21.0019 15.483 20.4843 16.951 19.512C16.835 18.5451 16.3691 17.6541 15.6412 17.0071C14.9133 16.3601 13.9739 16.0019 13 16H11C10.0261 16.0019 9.08665 16.3601 8.35879 17.0071C7.63092 17.6541 7.16502 18.5451 7.049 19.512C8.51698 20.4843 10.2392 21.0019 12 21ZM15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                        Profile
+                    </a>
+
+                    <a
+                        href="#"
+                        onclick="openLogoutModal(event)"
+                        class="sidebar-nav-item"
+                    >
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M9.35294 16.2V18.3C9.35294 18.8569 9.57605 19.3911 9.97319 19.7849C10.3703 20.1787 10.909 20.4 11.4706 20.4L18.8824 20.4C19.444 20.4 19.9826 20.1787 20.3798 19.7849C20.7769 19.3911 21 18.8569 21 18.3L21 5.69998C21 5.14302 20.7769 4.60888 20.3798 4.21505C19.9826 3.82123 19.444 3.59998 18.8824 3.59998L11.4706 3.59998C10.909 3.59998 10.3703 3.82123 9.97319 4.21505C9.57605 4.60888 9.35294 5.14302 9.35294 5.69998V7.79998M15.7059 12L3 12M3 12L6.17647 15.15M3 12L6.17647 8.84998"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </nav>
+        </template>
+
+        <!-- Main Content -->
+        <div class="main-content flex flex-col flex-1 min-h-0 overflow-hidden">
+            <!-- Header -->
+            <div class="header staff-shell-header">
+                <div class="staff-header-start">
+                    <h1 class="staff-page-title truncate">Dashboard</h1>
+                </div>
+                <div class="staff-header-user">
+                    <div class="staff-header-user-meta">
+                        <div class="staff-header-user-name" data-user-name>—</div>
+                        <div class="staff-header-user-role" data-user-role>—</div>
+                    </div>
+                    <img src="" alt="User Avatar" class="staff-header-avatar" data-user-avatar>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <main id="dashboard" class="section active staff-main flex-1 min-h-0">
+                <div class="max-w-[1029px] mx-auto w-full space-y-6 box-border">
+                <!-- Analytics date range (trends + popularity + PDF) -->
+                <div class="staff-toolbar-surface space-y-2.5">
+                    <div class="min-w-0 space-y-0.5">
+                        <p class="staff-eyebrow">Analytics range</p>
+                        <p class="text-sm staff-muted-text leading-snug max-w-[42rem]">
+                            Optional date filter for booking trends, package popularity, and PDF export. Leave empty to use the default window from the server.
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end pt-2.5 border-t border-[color:var(--heigen-border-ui)]">
+                        <div class="flex flex-col gap-1 min-w-0">
+                            <label for="analyticsDateFrom" class="text-sm font-semibold staff-muted-text">From</label>
+                            <input
+                                type="date"
+                                id="analyticsDateFrom"
+                                class="staff-input heigen-field rounded-lg px-3 py-2 text-sm min-h-[36px] w-full min-w-[150px] max-w-[200px]"
+                            />
+                        </div>
+                        <div class="flex flex-col gap-1 min-w-0">
+                            <label for="analyticsDateTo" class="text-sm font-semibold staff-muted-text">To</label>
+                            <input
+                                type="date"
+                                id="analyticsDateTo"
+                                class="staff-input heigen-field rounded-lg px-3 py-2 text-sm min-h-[36px] w-full min-w-[150px] max-w-[200px]"
+                            />
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:ml-auto sm:justify-end">
+                            <button
+                                type="button"
+                                onclick="applyAnalyticsDateFilter()"
+                                class="staff-btn-primary text-xs px-5 min-h-[36px] shrink-0"
+                            >
+                                Apply range
+                            </button>
+                            <button
+                                type="button"
+                                onclick="resetAnalyticsDateFilter()"
+                                class="staff-btn-muted text-xs h-[34px] px-3 shadow-sm shrink-0"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                type="button"
+                                onclick="downloadDashboardPdf()"
+                                class="staff-btn-secondary text-xs min-h-[34px] px-4 shrink-0 inline-flex items-center gap-2 shadow-sm"
+                            >
+                                <span class="font-segoe font-semibold">Download PDF</span>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path
+                                        d="M2.3335 11.8899C2.56958 12.1205 2.88977 12.25 3.22363 12.25H10.7767C11.1106 12.25 11.4308 12.1205 11.6668 11.8899M7.00087 1.75V8.71644M7.00087 8.71644L9.87822 6.05459M7.00087 8.71644L4.12351 6.05459"
+                                        stroke="currentColor"
+                                        stroke-width="1.16667"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Analytics Overview -->
+                <div
+                    class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6"
+                >
+                    <!-- General Risk Overview -->
+                    <div class="heigen-surface rounded-2xl p-4 lg:p-6">
+                        <header class="space-y-1 mb-4">
+                            <p class="staff-eyebrow">Renewal outlook</p>
+                            <p class="text-base font-bold text-[color:var(--heigen-table-text-strong)] leading-snug">
+                                Risk overview
+                            </p>
+                        </header>
+                        <div
+                            class="flex items-center justify-center py-4 lg:py-8"
+                        >
+                            <div
+                                class="chart-container"
+                                style="max-width: 250px"
+                            >
+                                <canvas id="riskChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 mt-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 lg:w-4 lg:h-4 rounded-full bg-[#A78BFA]"></div>
+                                <span class="text-xs lg:text-sm staff-muted-text">Unlikely</span>
+                                <span class="text-xs lg:text-sm font-bold ml-auto text-[color:var(--heigen-table-text-strong)]" id="risk_unlikely">—</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 lg:w-4 lg:h-4 rounded-full bg-[#E8E0F5]"></div>
+                                <span class="text-xs lg:text-sm staff-muted-text">Likely</span>
+                                <span class="text-xs lg:text-sm font-bold ml-auto text-[color:var(--heigen-table-text-strong)]" id="risk_likely">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Trends -->
+                    <div class="heigen-surface rounded-2xl p-4 lg:p-6">
+                        <header class="space-y-1 mb-4">
+                            <p class="staff-eyebrow">Volume &amp; revenue</p>
+                            <p class="text-base font-bold text-[color:var(--heigen-table-text-strong)] leading-snug">
+                                Booking trends
+                            </p>
+                        </header>
+                        <div class="chart-container">
+                            <canvas id="dosingChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Package Popularity -->
+                    <div
+                        class="heigen-surface rounded-2xl p-4 lg:p-6 lg:col-span-2"
+                    >
+                        <header class="space-y-1 mb-4">
+                            <p class="staff-eyebrow">Packages</p>
+                            <p class="text-base font-bold text-[color:var(--heigen-table-text-strong)] leading-snug">
+                                Popularity
+                            </p>
+                        </header>
+                        <div class="chart-container" style="max-height: 350px">
+                            <canvas id="popularityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </main>
+        </div>
+
+        <script src="../../scripts/heigen-api.js"></script>
+        <script src="../../scripts/staff-guard.js"></script>
+        <script src="../../scripts/heigen-app.js"></script>
+        <script src="../../scripts/staff-profile.js"></script>
+        <script>
+            let riskChart, dosingChart, popularityChart;
+
+            function _escHtml(s) {
+                return String(s ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            // ── Chart colour palette (brand-aligned) ────────────────────────
+            const CHART_COLORS = {
+                teal:    "#165166",
+                muted:   "#9BB5BC",
+                blue:    "#4F9BB8",
+                amber:   "#E8A838",
+                green:   "#6BA38A",
+                purple:  "#7C3AED",
+                lilac:   "#A78BFA",
+                lavender:"#C4B5FD",
+                pale:    "#E8E0F5",
+            };
+
+            // ── Shared chart defaults ────────────────────────────────────────
+            Chart.defaults.font.family = "'Segoe UI', sans-serif";
+
+            // ── Update or create a chart ─────────────────────────────────────
+            function _upsertChart(ref, ctx, config) {
+                if (!ctx) return ref;
+                if (ref) { ref.destroy(); }
+                return new Chart(ctx, config);
+            }
+
+            // ─────────────────────────────────────────────────────────────────
+            // RISK OVERVIEW  —  doughnut
+            // Data: risk_overview from /api/analytics/dashboard/
+            // Two segments: Unlikely (very_unlikely + unlikely), Likely (likely + very_likely)
+            // ─────────────────────────────────────────────────────────────────
+            function renderRiskChart(data) {
+                const ctx = document.getElementById("riskChart");
+                const vu = data.very_unlikely || 0;
+                const u = data.unlikely || 0;
+                const l = data.likely || 0;
+                const vl = data.very_likely || 0;
+                const unlikelyTotal = vu + u;
+                const likelyTotal = l + vl;
+                const vals = [unlikelyTotal, likelyTotal];
+                const total = vals.reduce((a,b) => a+b, 0) || 1;
+
+                const elUnlikely = document.getElementById("risk_unlikely");
+                if (elUnlikely) elUnlikely.textContent = unlikelyTotal;
+                const elLikely = document.getElementById("risk_likely");
+                if (elLikely) elLikely.textContent = likelyTotal;
+                const rateEl = document.getElementById("risk_rate_label");
+                if (rateEl) rateEl.textContent = "Renewal Rate";
+                const rateValEl = document.getElementById("risk_rate_value");
+                if (rateValEl) rateValEl.textContent = data.booking_rate != null
+                    ? (data.booking_rate * 100).toFixed(1) + "%" : "-";
+
+                riskChart = _upsertChart(riskChart, ctx, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Unlikely", "Likely"],
+                        datasets: [{
+                            data: vals,
+                            backgroundColor: [
+                                CHART_COLORS.lilac,
+                                CHART_COLORS.pale,
+                            ],
+                            borderColor: "#FFFFFF",
+                            borderWidth: 3,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: "68%",
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                        return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    plugins: [{
+                        id: "centerText",
+                        beforeDatasetsDraw(chart) {
+                            const { width, height, ctx: c } = chart;
+                            c.save();
+                            const cx = width / 2, cy = height / 2;
+                            const renewedPct = data.booking_rate != null
+                                ? (data.booking_rate * 100).toFixed(1) + "%"
+                                : likelyTotal;
+                            c.font = `bold ${(height / 180).toFixed(2)}em Segoe UI`;
+                            c.fillStyle = CHART_COLORS.teal;
+                            c.textAlign = "center";
+                            c.textBaseline = "middle";
+                            c.fillText(renewedPct, cx, cy - 10);
+                            c.font = `${(height / 300).toFixed(2)}em Segoe UI`;
+                            c.fillStyle = "#999";
+                            c.fillText("Renewal Rate", cx, cy + 14);
+                            c.restore();
+                        },
+                    }],
+                });
+            }
+
+            // ─────────────────────────────────────────────────────────────────
+            // BOOKING TRENDS  —  line chart
+            // Data: booking_trends from /api/analytics/dashboard/
+            // Shows monthly booking volume + revenue over last 12 months
+            // ─────────────────────────────────────────────────────────────────
+            function renderTrendsChart(data) {
+                const ctx = document.getElementById("dosingChart");
+                dosingChart = _upsertChart(dosingChart, ctx, {
+                    type: "line",
+                    data: {
+                        labels: data.labels || [],
+                        datasets: [
+                            {
+                                label: "Bookings",
+                                data: data.bookings || [],
+                                borderColor: CHART_COLORS.muted,
+                                backgroundColor: "rgba(155,181,188,0.12)",
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointBackgroundColor: CHART_COLORS.muted,
+                                pointBorderColor: "#fff",
+                                pointBorderWidth: 2,
+                                yAxisID: "yCount",
+                            },
+                            {
+                                label: "Revenue (₱)",
+                                data: data.revenue || [],
+                                borderColor: CHART_COLORS.amber,
+                                backgroundColor: "rgba(232,168,56,0.08)",
+                                tension: 0.4,
+                                fill: false,
+                                pointRadius: 3,
+                                pointBackgroundColor: CHART_COLORS.amber,
+                                pointBorderColor: "#fff",
+                                pointBorderWidth: 2,
+                                yAxisID: "yRevenue",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: "top",
+                                align: "end",
+                                labels: { boxWidth: 10, padding: 12, font: { size: 11 } },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        if (ctx.dataset.yAxisID === "yRevenue")
+                                            return ` Revenue: ₱${Number(ctx.parsed.y).toLocaleString("en-PH", {minimumFractionDigits:2})}`;
+                                        return ` Bookings: ${ctx.parsed.y}`;
+                                    },
+                                },
+                            },
+                        },
+                        scales: {
+                            yCount: {
+                                type: "linear",
+                                position: "left",
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, font: { size: 10 } },
+                                grid: { color: "rgba(0,0,0,0.05)" },
+                                title: { display: true, text: "Bookings", font: { size: 10 }, color: CHART_COLORS.muted },
+                            },
+                            yRevenue: {
+                                type: "linear",
+                                position: "right",
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                ticks: {
+                                    font: { size: 10 },
+                                    callback: (v) => "₱" + (v >= 1000 ? (v/1000).toFixed(1)+"k" : v),
+                                },
+                                title: { display: true, text: "Revenue", font: { size: 10 }, color: CHART_COLORS.amber },
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 10 }, maxRotation: 45 },
+                            },
+                        },
+                    },
+                });
+            }
+
+            // ─────────────────────────────────────────────────────────────────
+            // PACKAGE POPULARITY  —  grouped bar chart
+            // Data: package_popularity from /api/analytics/dashboard/
+            // Shows per-package booking counts for last 6 months
+            // ─────────────────────────────────────────────────────────────────
+            function renderPopularityChart(data) {
+                const ctx = document.getElementById("popularityChart");
+                const maxVal = Math.max(
+                    1,
+                    ...( data.datasets || []).flatMap(ds => ds.data || [])
+                );
+                popularityChart = _upsertChart(popularityChart, ctx, {
+                    type: "bar",
+                    data: {
+                        labels: data.labels || [],
+                        datasets: (data.datasets || []).map((ds, i) => ({
+                            ...ds,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                        })),
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: "bottom",
+                                labels: { boxWidth: 10, padding: 12, font: { size: 11 } },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: Math.ceil(maxVal * 1.15) || 5,
+                                ticks: { stepSize: 1, font: { size: 10 } },
+                                grid: { color: "rgba(0,0,0,0.05)" },
+                                title: { display: true, text: "Bookings", font: { size: 10 } },
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 10 } },
+                            },
+                        },
+                    },
+                });
+            }
+
+            // ─────────────────────────────────────────────────────────────────
+            // INIT CHARTS — fetch analytics then render all three
+            // ─────────────────────────────────────────────────────────────────
+            window.__lastDashboardAnalytics = null;
+
+            function _analyticsQueryParams() {
+                const fromEl = document.getElementById("analyticsDateFrom");
+                const toEl = document.getElementById("analyticsDateTo");
+                const params = {};
+                if (fromEl?.value && toEl?.value) {
+                    params.date_from = fromEl.value;
+                    params.date_to = toEl.value;
+                }
+                return params;
+            }
+
+            window.applyAnalyticsDateFilter = function applyAnalyticsDateFilter() {
+                initCharts();
+            };
+
+            window.resetAnalyticsDateFilter = function resetAnalyticsDateFilter() {
+                const fromEl = document.getElementById("analyticsDateFrom");
+                const toEl = document.getElementById("analyticsDateTo");
+                if (fromEl) fromEl.value = "";
+                if (toEl) toEl.value = "";
+                initCharts();
+            };
+
+            async function initCharts() {
+                try {
+                    const analytics = await window.apiClient.analytics.dashboard(
+                        _analyticsQueryParams(),
+                    );
+                    window.__lastDashboardAnalytics = analytics;
+                    renderRiskChart(analytics.risk_overview       || {});
+                    renderTrendsChart(analytics.booking_trends    || { labels:[], bookings:[], revenue:[] });
+                    renderPopularityChart(analytics.package_popularity || { labels:[], datasets:[] });
+                } catch (err) {
+                    console.warn("[charts] analytics endpoint unavailable, using static fallback:", err.message);
+                    window.__lastDashboardAnalytics = null;
+                    renderRiskChart({ very_unlikely:0, unlikely:0, likely:0, very_likely:0, booking_rate:0 });
+                    renderTrendsChart({ labels:["No data"], bookings:[0], revenue:[0] });
+                    renderPopularityChart({ labels:["No data"], datasets:[] });
+                }
+            }
+
+            window.downloadDashboardPdf = function downloadDashboardPdf() {
+                const d = window.__lastDashboardAnalytics;
+                if (!d || !window.jspdf) {
+                    window.heigenAlert("Load analytics first, or PDF library failed to load.");
+                    return;
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: "pt", format: "a4" });
+                const margin = 40;
+                let y = margin;
+                const filters = d.filters || {};
+                doc.setFontSize(16);
+                doc.setTextColor(22, 81, 102);
+                doc.text("Heigen Studio — Analytics", margin, y);
+                y += 28;
+                doc.setFontSize(10);
+                doc.setTextColor(80, 80, 80);
+                doc.text(
+                    `Date range: ${filters.date_from || "—"} → ${filters.date_to || "—"}`,
+                    margin,
+                    y,
+                );
+                y += 22;
+
+                doc.setFontSize(13);
+                doc.setTextColor(0, 68, 92);
+                doc.text("Booking trends", margin, y);
+                y += 8;
+                const bt = d.booking_trends || {};
+                const labels = bt.labels || [];
+                const rows = labels.map((lab, i) => [
+                    lab,
+                    String((bt.bookings || [])[i] ?? ""),
+                    `₱${Number((bt.revenue || [])[i] || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`,
+                ]);
+                doc.autoTable({
+                    startY: y,
+                    head: [["Period", "Bookings", "Revenue"]],
+                    body: rows.length ? rows : [["—", "0", "₱0.00"]],
+                    styles: { fontSize: 9 },
+                    headStyles: { fillColor: [22, 81, 102] },
+                    margin: { left: margin, right: margin },
+                });
+                y = doc.lastAutoTable.finalY + 24;
+
+                doc.setFontSize(13);
+                doc.setTextColor(0, 68, 92);
+                doc.text("Package popularity", margin, y);
+                y += 8;
+                const pp = d.package_popularity || {};
+                const plabels = pp.labels || [];
+                const ds = pp.datasets || [];
+                const popHead = ["Package", ...plabels];
+                const popBody = ds.map((row) => [
+                    row.label || "",
+                    ...(row.data || []).map((v) => String(v)),
+                ]);
+                doc.autoTable({
+                    startY: y,
+                    head: [popHead],
+                    body: popBody.length ? popBody : [["—", ...plabels.map(() => "0")]],
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [22, 81, 102] },
+                    margin: { left: margin, right: margin },
+                    tableWidth: "wrap",
+                });
+
+                doc.save(`heigen-analytics-${(filters.date_from || "all")}-${(filters.date_to || "all")}.pdf`);
+            };
+
+            function toggleMobileSidebar(show) {
+                const sidebar = document.getElementById("sidebar");
+                const overlay = document.getElementById("mobileOverlay");
+                if (!sidebar || !overlay) return;
+
+                if (show) {
+                    sidebar.classList.add("mobile-open");
+                    overlay.classList.add("show");
+                } else {
+                    sidebar.classList.remove("mobile-open");
+                    overlay.classList.remove("show");
+                }
+            }
+
+            function navigateTo(section) {
+                // Hide all sections
+                document.querySelectorAll(".section").forEach((s) => {
+                    s.classList.remove("active");
+                });
+
+                // Remove active from all nav items
+                document.querySelectorAll(".sidebar-nav-item").forEach((item) => {
+                    item.classList.remove("is-active");
+                });
+
+                // Show selected section
+                const selectedSection = document.getElementById(section);
+                if (selectedSection) {
+                    selectedSection.classList.add("active");
+                }
+
+                // Set active nav item
+                const navItems = document.querySelectorAll(".sidebar-nav-item");
+                navItems.forEach((item, index) => {
+                    if (section === "dashboard" && index === 0) {
+                        item.classList.add("is-active");
+                    } else if (section === "customer-data" && index === 1) {
+                        item.classList.add("is-active");
+                    } else if (section === "package-list" && index === 2) {
+                        item.classList.add("is-active");
+                    } else if (section === "coupons" && index === 3) {
+                        item.classList.add("is-active");
+                    } else if (section === "edit-profile" && index === 5) {
+                        item.classList.add("is-active");
+                    } else if (section === "logout" && index === 6) {
+                        item.classList.add("is-active");
+                    }
+                });
+
+                // Close mobile sidebar
+                toggleMobileSidebar(false);
+
+                // Initialize charts when dashboard is shown
+                if (section === "dashboard") {
+                    setTimeout(initCharts, 100);
+                }
+            }
+
+            // Initialize charts on page load (package recommendation section removed)
+            window.addEventListener("load", () => {
+                initCharts();
+            });
+
+            // Handle window resize to reinitialize charts
+            let resizeTimeout;
+            window.addEventListener("resize", () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (riskChart) riskChart.resize();
+                    if (dosingChart) dosingChart.resize();
+                    if (popularityChart) popularityChart.resize();
+                }, 250);
+            });
+
+            /** Stub — referenced by heigen-app.js; recommendation cards removed from dashboard */
+            window.loadDashboardData = async function loadDashboardData() {};
+
+            window.refreshDashboardRecs = async function refreshDashboardRecs() {
+                try {
+                    await window.apiClient.recommendations.rebuild();
+                    console.log("[dashboard] popularity rebuilt");
+                } catch (e) {
+                    console.warn("[dashboard] rebuild failed (non-fatal):", e.message);
+                }
+                await initCharts();
+            };
+
+        </script>
+            <!-- ── NOTIFICATION PANEL (shared across all pages) ── -->
+        <div class="booking-status-panel-overlay" id="bookingStatusOverlay" onclick="closeBookingStatusPanel()"></div>
+        <div class="booking-status-panel" id="bookingStatusPanel" style="display:none;">
+            <div class="booking-status-header">
+                <h2>BOOKING STATUS</h2>
+                <button class="close-panel-btn" onclick="closeBookingStatusPanel()">×</button>
+            </div>
+            <div class="booking-status-content" id="bookingStatusContent"></div>
+        </div>
+        <!-- ── FLOATING NOTIFICATION BUTTON ── -->
+        <button class="floating-notification-btn" id="floatingNotificationBtn"
+                aria-label="Notifications" onclick="toggleBookingStatusPanel()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M4.50763 17.625H19.4933C19.9097 17.625 20.1458 16.961 19.9006 16.5805C19.3329 15.6996 18.7814 14.401 18.7814 12.835L18.8058 10.6931C18.8058 6.44431 15.7588 3 12 3C8.29581 3 5.29296 6.39431 5.29296 10.5814L5.26855 12.835C5.26855 14.3903 4.69736 15.6818 4.10557 16.5624C3.85054 16.9419 4.08602 17.625 4.50763 17.625Z" fill="white"/>
+                <path d="M9.33333 21C9.33333 22.1 10.1 23 12 23C13.9 23 14.6667 22.1 14.6667 21H9.33333Z" fill="white"/>
+            </svg>
+            <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+        </button>
+        <!-- ── GLOBAL REFRESH BUTTON ── -->
+        <button class="global-refresh-btn" id="globalRefreshBtn"
+                aria-label="Refresh" onclick="refreshPage()" title="Refresh">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+        </button>
+        <!-- ── PAGE LOADING OVERLAY ── -->
+        <div class="page-loading-overlay" id="pageLoadingOverlay" style="display:none;">
+            <div class="spinner"></div>
+            <div class="loading-label">Loading…</div>
+        </div>
+        <script src="../../scripts/api-client.js"></script>
+        <script src="../../scripts/notif.js"></script>
+        <script src="../../scripts/staff-embed.js"></script>
+
+    </body>
+</html>

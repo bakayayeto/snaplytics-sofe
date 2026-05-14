@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../scripts/theme.js"></script>
+    <title>Heigen – Action Logs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/customers.css">
+    <link rel="stylesheet" href="../../styles/theme-dark.css">
+    <script src="../../scripts/alert-modal.js"></script>
+</head>
+<body class="staff-body h-screen overflow-hidden flex flex-col">
+    <div class="main-content flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div class="header staff-shell-header">
+            <div class="staff-header-start">
+                <h1 class="staff-page-title truncate">Action Logs</h1>
+            </div>
+            <div class="staff-header-user">
+                <div class="staff-header-user-meta">
+                    <div class="staff-header-user-name" data-user-name>—</div>
+                    <div class="staff-header-user-role" data-user-role>—</div>
+                </div>
+                <img src="" alt="User Avatar" class="staff-header-avatar" data-user-avatar>
+            </div>
+        </div>
+
+        <main class="staff-main flex-1 min-h-0">
+            <div class="max-w-[1140px] mx-auto w-full space-y-6 box-border">
+            <div class="staff-toolbar-surface space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div class="space-y-1 min-w-0 flex-1">
+                        <p class="staff-eyebrow">Activity</p>
+                        <p class="staff-page-lead">Recent admin activity — bookings, packages, accounts, and security events.</p>
+                    </div>
+                    <button type="button" id="refreshActionLogsBtn" class="staff-btn-primary min-h-[32px] text-xs px-5 shrink-0">Refresh</button>
+                </div>
+                <div class="action-logs-filter-row staff-filter-row-divider flex flex-wrap items-end gap-3 pt-3">
+                <div class="flex flex-col gap-1 min-w-0">
+                    <label for="logsSearchInput" class="action-logs-filter-label">Search</label>
+                    <input id="logsSearchInput" type="text" placeholder="Actor or action…" class="staff-input heigen-field rounded-lg px-3 py-2 text-xs min-w-[200px] max-w-[min(100%,280px)]">
+                </div>
+                <div class="flex flex-col gap-1 min-w-0">
+                    <label for="logsActorFilter" class="action-logs-filter-label">User</label>
+                    <input id="logsActorFilter" type="text" placeholder="Nickname, email, username, or ID" class="staff-input heigen-field rounded-lg px-3 py-2 text-xs min-w-[200px] max-w-[min(100%,320px)]">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="logsTypeFilter" class="action-logs-filter-label">Type</label>
+                    <select id="logsTypeFilter" class="staff-input heigen-field rounded-lg px-3 py-2 text-xs min-w-[180px]">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="logsDateFrom" class="action-logs-filter-label">From</label>
+                    <input id="logsDateFrom" type="date" class="staff-input heigen-field rounded-lg px-3 py-2 text-xs min-w-[140px]">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="logsDateTo" class="action-logs-filter-label">To</label>
+                    <input id="logsDateTo" type="date" class="staff-input heigen-field rounded-lg px-3 py-2 text-xs min-w-[140px]">
+                </div>
+                <button type="button" id="applyLogsFilterBtn" class="staff-btn-primary min-h-[32px] text-xs px-4">Apply</button>
+                <button type="button" id="clearLogsFilterBtn" class="staff-btn-secondary min-h-[32px] text-xs px-4">Clear</button>
+                </div>
+            </div>
+
+            <div id="logsLoading" class="staff-loading-panel">
+                <div class="heigen-spinner" aria-hidden="true"></div>
+                <p class="staff-muted-text font-semibold text-sm">Loading action logs…</p>
+            </div>
+
+            <div id="logsEmpty" class="hidden heigen-surface rounded-2xl p-8 text-center staff-muted-text font-semibold">
+                No action logs yet.
+            </div>
+
+            <div id="logsTableWrap" class="hidden heigen-surface overflow-x-auto max-w-full heigen-table-wrap rounded-2xl shadow-sm">
+                <table class="w-full min-w-[720px] text-sm heigen-table action-logs-table">
+                    <thead class="text-white sticky top-0 z-10">
+                        <tr>
+                            <th class="text-left px-4 py-3.5 font-semibold tracking-wide text-[12px]">Time</th>
+                            <th class="text-left px-4 py-3.5 font-semibold tracking-wide text-[12px]">Actor</th>
+                            <th class="text-left px-4 py-3.5 font-semibold tracking-wide text-[12px]">Action</th>
+                            <th class="text-left px-4 py-3.5 font-semibold tracking-wide text-[12px]">Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actionLogsBody"></tbody>
+                </table>
+            </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../scripts/api-client.js"></script>
+    <script src="../../scripts/heigen-api.js"></script>
+    <script src="../../scripts/staff-auth.js"></script>
+    <script src="../../scripts/staff-guard.js"></script>
+    <script src="../../scripts/staff-profile.js"></script>
+    <script src="../../scripts/staff-embed.js"></script>
+    <script src="../../scripts/action-logs.js"></script>
+</body>
+</html>
