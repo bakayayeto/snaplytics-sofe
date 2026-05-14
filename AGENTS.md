@@ -11,11 +11,11 @@
 
 ### Database
 
-Local PostgreSQL 16 is used for development. The Django settings enforce `sslmode: require`, which works with the default Ubuntu PostgreSQL install (SSL is enabled by default).
+The project uses a remote Supabase PostgreSQL instance (configured in `.env` at repo root). Django settings enforce `sslmode: require`, which is correct for Supabase pooler connections.
 
-- DB: `snaplytics`, user: `postgres`, password: `postgres`
-- Start PostgreSQL: `sudo pg_ctlcluster 16 main start`
-- The `.env` file at repo root provides `DB_HOST=localhost DB_PORT=5432 DB_NAME=snaplytics DB_USER=postgres DB_PASSWORD=postgres`
+- `.env` must contain `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` pointing to Supabase.
+- Alternatively, local PostgreSQL 16 can be used: `sudo pg_ctlcluster 16 main start` (SSL works by default on Ubuntu PG).
+- API responses are slower (~3-4s) due to remote DB latency; this is normal.
 
 ### Starting services
 
