@@ -562,7 +562,6 @@ function renderBookingListRowsOnly() {
         if (cid) {
             menuParts.push(
                 `<button type="button" class="booking-menu-item" onclick="openCustomerRecordsPage(${cid})">Records</button>`,
-                `<button type="button" class="booking-menu-item" onclick="openBookingCouponDialog(${booking.id})">Apply coupon</button>`,
             );
         }
         menuParts.push(
@@ -683,7 +682,6 @@ function handleViewBookingSummary(bookingId) {
     const customerName = booking.customer_name    ?? null;
     const email        = booking.customer_email   ?? null;  // from customer.email
     const contact      = booking.customer_contact ?? null;  // from customer.contact_number
-    const appliedCouponCode = booking.appliedCouponCode ?? null;
     const type         = booking.type             ?? null;
     const category     = booking.category_name    ?? null;  // from package.category
     const pkgName      = booking.packageName      ?? null;
@@ -788,7 +786,7 @@ function handleViewBookingSummary(bookingId) {
             </div>` : ""}
             ${discount > 0 ? `
             <div class="ns-total-row">
-              <span>Voucher${appliedCouponCode ? ` (${_nsEscapeHtml(appliedCouponCode)})` : ""}</span>
+              <span>Discount</span>
               <span style="color:#2d8a6e;">−₱${discount.toLocaleString("en-PH", {minimumFractionDigits:2})}</span>
             </div>` : ""}
             <div class="ns-total-row ns-total-grand">
@@ -803,8 +801,7 @@ function handleViewBookingSummary(bookingId) {
           ${(() => {
             const cid = booking.customerId ?? booking.customer_id;
             if (!cid) return "";
-            return `<button type="button" class="booking-action-btn summary" onclick="openCustomerRecordsPage(${cid})">Records</button>
-              <button type="button" class="booking-action-btn summary" onclick="closeNotifSummary();openBookingCouponDialog(${booking.id})">Apply coupon</button>`;
+            return `<button type="button" class="booking-action-btn summary" onclick="openCustomerRecordsPage(${cid})">Records</button>`;
           })()}
           <button class="booking-action-btn summary" onclick="closeNotifSummary()">Close</button>
         </div>
@@ -871,6 +868,7 @@ function _nsCouponMetaLine(c) {
 }
 
 function openBookingCouponDialog(bookingId) {
+    if (window.__heigenCouponUiEnabled !== true) return;
     const booking = pendingBookings.find((b) => b.id === bookingId);
     if (!booking) return;
     const cid = booking.customerId ?? booking.customer_id;

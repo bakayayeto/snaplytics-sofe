@@ -685,45 +685,35 @@
     width: 3.5%;
 }
 
-/* Default 9 columns — sums to 100% (ID −50% → half width; slack → Name) */
+/* Default columns after hiding renewal and points — sums to 100% */
 .customer-data-heigen-table .customer-th--id,
 .customer-data-heigen-table .customer-td--id {
-    width: 5.5%;
+    width: 6%;
 }
 
 .customer-data-heigen-table .customer-th--name,
 .customer-data-heigen-table .customer-td--name {
-    width: 19.155%;
+    width: 24%;
 }
 
 .customer-data-heigen-table .customer-th--email,
 .customer-data-heigen-table .customer-td--email {
-    width: 22.345%;
+    width: 28%;
 }
 
 .customer-data-heigen-table .customer-th--contact,
 .customer-data-heigen-table .customer-td--contact {
-    width: 11%;
+    width: 15%;
 }
 
 .customer-data-heigen-table .customer-th--consent,
 .customer-data-heigen-table .customer-td--consent {
-    width: 10%;
-}
-
-.customer-data-heigen-table .customer-th--renewal,
-.customer-data-heigen-table .customer-td--renewal {
-    width: 9%;
+    width: 12%;
 }
 
 .customer-data-heigen-table .customer-th--bookings,
 .customer-data-heigen-table .customer-td--bookings {
-    width: 9%;
-}
-
-.customer-data-heigen-table .customer-th--pts,
-.customer-data-heigen-table .customer-td--pts {
-    width: 6%;
+    width: 7%;
 }
 
 .customer-data-heigen-table .customer-th--actions,
@@ -737,7 +727,7 @@
     padding-right: 0.75rem;
 }
 
-/* Select mode: checkbox + 9 cols — sums to 100% */
+/* Select mode: checkbox + visible cols — sums to 100% */
 .customer-data-heigen-table--select .customer-th-check,
 .customer-data-heigen-table--select .customer-td--check {
     width: 5%;
@@ -745,42 +735,32 @@
 
 .customer-data-heigen-table--select .customer-th--id,
 .customer-data-heigen-table--select .customer-td--id {
-    width: 4%;
+    width: 5%;
 }
 
 .customer-data-heigen-table--select .customer-th--name,
 .customer-data-heigen-table--select .customer-td--name {
-    width: 17.73%;
+    width: 23%;
 }
 
 .customer-data-heigen-table--select .customer-th--email,
 .customer-data-heigen-table--select .customer-td--email {
-    width: 25.27%;
+    width: 28%;
 }
 
 .customer-data-heigen-table--select .customer-th--contact,
 .customer-data-heigen-table--select .customer-td--contact {
-    width: 10%;
+    width: 13%;
 }
 
 .customer-data-heigen-table--select .customer-th--consent,
 .customer-data-heigen-table--select .customer-td--consent {
-    width: 9%;
-}
-
-.customer-data-heigen-table--select .customer-th--renewal,
-.customer-data-heigen-table--select .customer-td--renewal {
-    width: 8%;
+    width: 10%;
 }
 
 .customer-data-heigen-table--select .customer-th--bookings,
 .customer-data-heigen-table--select .customer-td--bookings {
     width: 8%;
-}
-
-.customer-data-heigen-table--select .customer-th--pts,
-.customer-data-heigen-table--select .customer-td--pts {
-    width: 5%;
 }
 
 .customer-data-heigen-table--select .customer-th--actions,
@@ -840,9 +820,7 @@
     color: var(--heigen-table-text-muted);
 }
 
-.customer-data-heigen-table .customer-td--renewal,
-.customer-data-heigen-table .customer-td--bookings,
-.customer-data-heigen-table .customer-td--pts {
+.customer-data-heigen-table .customer-td--bookings {
     font-weight: 600;
     color: var(--heigen-table-text-muted);
 }
@@ -1020,9 +998,7 @@
     background: rgba(255, 255, 255, 0.12);
 }
 
-.customer-th--renewal .customer-sort-btn,
 .customer-th--bookings .customer-sort-btn,
-.customer-th--pts .customer-sort-btn,
 .customer-th--consent .customer-sort-btn {
     justify-content: center;
     text-align: center;

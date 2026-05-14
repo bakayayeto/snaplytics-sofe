@@ -184,7 +184,7 @@ async function loadCustomers() {
         const tb = document.getElementById("tableBody");
         if (tb) {
             tb.innerHTML =
-                `<tr><td colspan="9" class="px-4 py-10 text-center text-sm text-red-700">
+                `<tr><td colspan="7" class="px-4 py-10 text-center text-sm text-red-700">
                Could not load customers. Is the Django server running?<br>
                <span class="text-red-600/90">${cdEscape(err.message)}</span>
              </td></tr>`;
@@ -351,19 +351,6 @@ function setFilterModalOpen(open) {
     if (toggleBtn) toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
 }
 
-/** Display renewal as percent; API sends 0..1 from Snaplytics heuristic. */
-function formatRenewalRateDisplay(c) {
-    const p = Number(c.renewalRate);
-    if (Number.isNaN(p)) return "—";
-    return `${Math.round(Math.max(0, Math.min(1, p)) * 100)}%`;
-}
-
-function formatLoyaltyPointsDisplay(c) {
-    const v = c.loyaltyPoints;
-    if (v == null || Number.isNaN(Number(v))) return "0.0";
-    return Number(v).toFixed(1);
-}
-
 /** Select-mode UI (checkbox column) stays visible while editing a selected row */
 function customerTableSelectionUiActive() {
     return (
@@ -453,9 +440,7 @@ function renderTable() {
           <td class="customer-td customer-td--email pl-2 pr-4 py-3 align-middle"${_cellTitleAttr(c.email)}>${cdEscape(c.email ?? "")}</td>
           <td class="customer-td customer-td--contact px-4 py-3 align-middle"${_cellTitleAttr(c.contactNo)}>${cdEscape(c.contactNo ?? "")}</td>
           <td class="customer-td customer-td--consent px-2 py-3 text-center align-middle">${consentBadgeHtml(c)}</td>
-          <td class="customer-td customer-td--renewal px-2 py-3 text-center align-middle tabular-nums">${formatRenewalRateDisplay(c)}</td>
           <td class="customer-td customer-td--bookings px-2 py-3 text-center align-middle tabular-nums">${c.bookings ?? 0}</td>
-          <td class="customer-td customer-td--pts px-2 py-3 text-center align-middle tabular-nums">${formatLoyaltyPointsDisplay(c)}</td>
           <td class="customer-td customer-td--actions py-3 align-middle text-right">
             <button type="button" class="customer-action-view" onclick="navigateToCustomerDetails(${c.id})">View</button>
           </td>`;
