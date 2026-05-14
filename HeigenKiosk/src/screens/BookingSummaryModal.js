@@ -1,301 +1,20 @@
 // src/screens/BookingSummaryModal.js
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
     View,
     Text,
-    TextInput,
     ScrollView,
     TouchableOpacity,
     Modal,
     Pressable,
-    ActivityIndicator,
 } from "react-native";
 import Icon from "../components/Icon";
 import { Button } from "../components/ui";
 import { colors, spacing, radii, shadow } from "../constants/theme";
 import { useScale } from "../hooks/useScale";
-import { validateCoupon } from "../api/client";
 import { effectivePackagePriceForClaim } from "../utils/loyaltyClaim";
 import { addonQty, addonLineSubtotal, sumAddonLineSubtotals } from "../utils/addonLines";
 import { formatMonthDayYear } from "../utils/dateDisplay";
-
-/** Shared coupon UI: "My coupons" and "Enter code" stay in sync via parent state. */
-function CouponSection({
-    tablet,
-    s,
-    fs,
-    customerId,
-    subtotalVal,
-    selectedCoupon,
-    couponDiscount,
-    onSelectCoupon,
-    onRemoveCoupon,
-    availableCoupons = [],
-}) {
-    const [couponTab, setCouponTab] = useState(
-        availableCoupons.length ? "mine" : "code",
-    );
-    const [couponCodeInput, setCouponCodeInput] = useState("");
-    const [couponError, setCouponError] = useState("");
-    const [validating, setValidating] = useState(false);
-
-    useEffect(() => {
-        if (availableCoupons.length) setCouponTab("mine");
-        else setCouponTab("code");
-    }, [availableCoupons]);
-
-    async function applyCode(code) {
-        const trimmed = (code || "").trim();
-        if (!trimmed) {
-            setCouponError("Enter a coupon code");
-            return;
-        }
-        if (!customerId) {
-            setCouponError("Customer must be identified to use a coupon");
-            return;
-        }
-        setCouponError("");
-        setValidating(true);
-        try {
-            const res = await validateCoupon(trimmed, customerId, subtotalVal || 0);
-            if (res.valid && res.coupon_id != null) {
-                onSelectCoupon?.(
-                    { id: res.coupon_id, code: trimmed },
-                    res.discount_amount ?? 0,
-                );
-                setCouponCodeInput("");
-            } else {
-                setCouponError(res.error || "Invalid coupon");
-            }
-        } catch (err) {
-            setCouponError(err.message || "Could not validate coupon");
-        } finally {
-            setValidating(false);
-        }
-    }
-
-    const tabBtn = (key, label) => (
-        <TouchableOpacity
-            key={key}
-            onPress={() => {
-                setCouponTab(key);
-                setCouponError("");
-            }}
-            style={{
-                flex: 1,
-                paddingVertical: tablet ? 8 : s(spacing.sm),
-                borderRadius: tablet ? 8 : s(radii.md),
-                backgroundColor: couponTab === key ? colors.accent : "transparent",
-                alignItems: "center",
-            }}
-        >
-            <Text
-                style={{
-                    fontSize: tablet ? 11 : fs(12),
-                    fontWeight: "700",
-                    color: couponTab === key ? "#fff" : colors.mutedForeground,
-                }}
-                allowFontScaling={false}
-            >
-                {label}
-            </Text>
-        </TouchableOpacity>
-    );
-
-    if (customerId == null) return null;
-
-    return (
-        <>
-            <View
-                style={{
-                    height: 1,
-                    backgroundColor: colors.border,
-                    marginVertical: tablet ? 8 : s(spacing.md),
-                }}
-            />
-            <Text
-                style={{
-                    fontSize: tablet ? 10 : fs(11),
-                    fontWeight: "700",
-                    color: colors.mutedForeground,
-                    marginBottom: tablet ? 6 : s(spacing.sm),
-                }}
-                allowFontScaling={false}
-            >
-                Coupon
-            </Text>
-            {availableCoupons.length > 0 && (
-                <View
-                    style={{
-                        flexDirection: "row",
-                        gap: 4,
-                        marginBottom: tablet ? 8 : s(spacing.sm),
-                        backgroundColor: colors.accentLight,
-                        borderRadius: tablet ? 10 : s(radii.lg),
-                        padding: 4,
-                    }}
-                >
-                    {tabBtn("mine", "My coupons")}
-                    {tabBtn("code", "Enter code")}
-                </View>
-            )}
-            {selectedCoupon ? (
-                <View
-                    style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        backgroundColor: "rgba(34,197,94,0.1)",
-                        padding: tablet ? 8 : s(spacing.md),
-                        borderRadius: tablet ? 8 : s(radii.lg),
-                        marginBottom: tablet ? 0 : s(spacing.md),
-                    }}
-                >
-                    <Text
-                        style={{
-                            fontSize: tablet ? 12 : fs(14),
-                            fontWeight: "600",
-                        }}
-                        allowFontScaling={false}
-                    >
-                        {selectedCoupon.code} (-₱{couponDiscount.toLocaleString()})
-                    </Text>
-                    <TouchableOpacity
-                        onPress={() => onRemoveCoupon?.()}
-                        style={{ padding: tablet ? 4 : s(spacing.sm) }}
-                    >
-                        <Icon
-                            name="close"
-                            size={tablet ? 18 : s(22)}
-                            color={colors.mutedForeground}
-                        />
-                    </TouchableOpacity>
-                </View>
-            ) : couponTab === "mine" && availableCoupons.length > 0 ? (
-                <View style={{ gap: tablet ? 6 : s(spacing.sm) }}>
-                    {availableCoupons.map((c) => (
-                        <TouchableOpacity
-                            key={c.id}
-                            onPress={() => applyCode(c.code)}
-                            disabled={validating}
-                            style={{
-                                padding: tablet ? 10 : s(spacing.md),
-                                borderWidth: 1,
-                                borderColor: colors.borderStrong,
-                                borderRadius: tablet ? 8 : s(radii.lg),
-                                backgroundColor: colors.muted,
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    fontSize: tablet ? 12 : fs(13),
-                                    fontWeight: "700",
-                                    color: colors.slateDeep,
-                                }}
-                                allowFontScaling={false}
-                            >
-                                {c.code}
-                            </Text>
-                            {c.discount_preview ? (
-                                <Text
-                                    style={{
-                                        fontSize: tablet ? 10 : fs(11),
-                                        color: colors.mutedForeground,
-                                    }}
-                                    allowFontScaling={false}
-                                >
-                                    {c.discount_preview}
-                                </Text>
-                            ) : null}
-                        </TouchableOpacity>
-                    ))}
-                    {couponError ? (
-                        <Text
-                            style={{
-                                fontSize: tablet ? 11 : fs(12),
-                                color: colors.error,
-                            }}
-                            allowFontScaling={false}
-                        >
-                            {couponError}
-                        </Text>
-                    ) : null}
-                    {validating ? (
-                        <ActivityIndicator size="small" color={colors.accent} />
-                    ) : null}
-                </View>
-            ) : (
-                <View
-                    style={{
-                        gap: tablet ? 4 : s(spacing.sm),
-                        marginBottom: tablet ? 0 : s(spacing.md),
-                    }}
-                >
-                    <View style={{ flexDirection: "row", gap: tablet ? 8 : s(spacing.sm) }}>
-                        <TextInput
-                            value={couponCodeInput}
-                            onChangeText={(t) => {
-                                setCouponCodeInput(t);
-                                setCouponError("");
-                            }}
-                            placeholder="Enter coupon code"
-                            placeholderTextColor={colors.slate}
-                            style={{
-                                flex: 1,
-                                fontSize: tablet ? 12 : fs(14),
-                                paddingHorizontal: tablet ? 10 : s(spacing.md),
-                                paddingVertical: tablet ? 8 : s(spacing.md),
-                                borderWidth: 1,
-                                borderColor: colors.borderStrong,
-                                borderRadius: tablet ? 8 : s(radii.lg),
-                                backgroundColor: colors.muted,
-                                color: colors.slateDeep,
-                            }}
-                            editable={!validating}
-                        />
-                        <TouchableOpacity
-                            onPress={() => applyCode(couponCodeInput)}
-                            disabled={validating}
-                            style={{
-                                paddingHorizontal: tablet ? 12 : s(spacing.lg),
-                                paddingVertical: tablet ? 8 : s(spacing.md),
-                                backgroundColor: colors.accent,
-                                borderRadius: tablet ? 8 : s(radii.lg),
-                                justifyContent: "center",
-                            }}
-                        >
-                            {validating ? (
-                                <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                                <Text
-                                    style={{
-                                        fontSize: tablet ? 12 : fs(14),
-                                        fontWeight: "600",
-                                        color: "#fff",
-                                    }}
-                                    allowFontScaling={false}
-                                >
-                                    Apply
-                                </Text>
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                    {couponError ? (
-                        <Text
-                            style={{
-                                fontSize: tablet ? 11 : fs(12),
-                                color: colors.error,
-                            }}
-                            allowFontScaling={false}
-                        >
-                            {couponError}
-                        </Text>
-                    ) : null}
-                </View>
-            )}
-        </>
-    );
-}
 
 export default function BookingSummaryModal({
     visible,
@@ -306,13 +25,7 @@ export default function BookingSummaryModal({
     selectedPackage,
     selectedAddons,
     customerInfo,
-    customerId,
     loading,
-    selectedCoupon,
-    couponDiscount = 0,
-    onSelectCoupon,
-    onRemoveCoupon,
-    availableCoupons = [],
 }) {
     const { s, fs, isTablet, W } = useScale();
 
@@ -322,7 +35,7 @@ export default function BookingSummaryModal({
     const addonsTotal = sumAddonLineSubtotals(selectedAddons);
     // Same formula as KioskApp.calcTotal — single breakdown sum (no separate prop drift).
     const subtotalVal = pkgPrice + addonsTotal;
-    const grandTotal = subtotalVal - couponDiscount;
+    const grandTotal = subtotalVal;
     const inclusions = Array.isArray(selectedPackage.inclusions)
         ? selectedPackage.inclusions
         : [];
@@ -599,18 +312,6 @@ export default function BookingSummaryModal({
                                             ))}
                                         </>
                                     )}
-                                    <CouponSection
-                                        tablet
-                                        s={s}
-                                        fs={fs}
-                                        customerId={customerId}
-                                        subtotalVal={subtotalVal}
-                                        selectedCoupon={selectedCoupon}
-                                        couponDiscount={couponDiscount}
-                                        onSelectCoupon={onSelectCoupon}
-                                        onRemoveCoupon={onRemoveCoupon}
-                                        availableCoupons={availableCoupons}
-                                    />
                                 </View>
                             </View>
 
@@ -981,18 +682,6 @@ export default function BookingSummaryModal({
                                             ))}
                                         </>
                                     )}
-                                    <CouponSection
-                                        tablet={false}
-                                        s={s}
-                                        fs={fs}
-                                        customerId={customerId}
-                                        subtotalVal={subtotalVal}
-                                        selectedCoupon={selectedCoupon}
-                                        couponDiscount={couponDiscount}
-                                        onSelectCoupon={onSelectCoupon}
-                                        onRemoveCoupon={onRemoveCoupon}
-                                        availableCoupons={availableCoupons}
-                                    />
                                     <View
                                         style={{
                                             flexDirection: "row",

@@ -12,7 +12,7 @@ import { effectivePackagePriceForClaim } from '../utils/loyaltyClaim';
 import { addonLineSubtotal } from '../utils/addonLines';
 
 const SOURCE_LABELS = {
-  customer_booking_history: "Booking Loyalty",
+  customer_booking_history: "For You",
   personalized_by_pkg_pred: "For You",
   popular_fallback: "Popular Choice",
   popularity: "Popular Choice",
