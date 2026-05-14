@@ -698,7 +698,7 @@
 
 .customer-data-heigen-table .customer-th--email,
 .customer-data-heigen-table .customer-td--email {
-    width: 25.345%;
+    width: 24.345%;
 }
 
 .customer-data-heigen-table .customer-th--contact,
@@ -713,7 +713,7 @@
 
 .customer-data-heigen-table .customer-th--renewal,
 .customer-data-heigen-table .customer-td--renewal {
-    width: 9%;
+    width: 10%;
 }
 
 .customer-data-heigen-table .customer-th--bookings,
@@ -750,7 +750,7 @@
 
 .customer-data-heigen-table--select .customer-th--email,
 .customer-data-heigen-table--select .customer-td--email {
-    width: 27.77%;
+    width: 26.77%;
 }
 
 .customer-data-heigen-table--select .customer-th--contact,
@@ -765,7 +765,7 @@
 
 .customer-data-heigen-table--select .customer-th--renewal,
 .customer-data-heigen-table--select .customer-td--renewal {
-    width: 8%;
+    width: 9%;
 }
 
 .customer-data-heigen-table--select .customer-th--bookings,
@@ -1033,6 +1033,13 @@
 
 /* After generic label rule — ID column must show full “ID” (else flex + ellipsis → “I.”) */
 .customer-data-heigen-table thead .customer-th--id .customer-sort-btn__label {
+    overflow: visible;
+    text-overflow: clip;
+    min-width: max-content;
+    flex-shrink: 0;
+}
+
+.customer-data-heigen-table thead .customer-th--renewal .customer-sort-btn__label {
     overflow: visible;
     text-overflow: clip;
     min-width: max-content;
