@@ -21,7 +21,6 @@
         "customer-details.html",
         "packages.html",
         "packages-list.html",
-        "coupons.html",
         "action-logs.html",
         "recycle-bin.html",
         "profile.html",
