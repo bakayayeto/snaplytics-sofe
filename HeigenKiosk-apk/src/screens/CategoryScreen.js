@@ -10,7 +10,7 @@ import { useScale } from '../hooks/useScale';
 import { resolveCategoryImage } from '../constants/assets';
 
 const SOURCE_LABELS = {
-  customer_booking_history: "Booking Loyalty",
+  customer_booking_history: "For You",
   personalized_by_pkg_pred: "For You",
   popular_fallback: "Popular Choice",
   popularity: "Popular Choice",
