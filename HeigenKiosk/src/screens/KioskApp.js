@@ -22,7 +22,6 @@ import {
     findCustomerByEmail,
     fetchPopularRecommendations,
     fetchRecommendations,
-    fetchCustomerCoupons,
     loadKioskBootstrap,
     buildClientPopularRecommendations,
     submitBooking,
@@ -51,9 +50,6 @@ function createInitialState() {
         selectedAddons: [],
         customerInfo: null,
         customerId: null,
-        availableCoupons: [],
-        selectedCoupon: null,
-        couponDiscount: 0,
         showCustomerForm: true,
         showSummary: false,
         showExitPage: false,
@@ -62,8 +58,6 @@ function createInitialState() {
         recommendationData: null,
         formResetToken: 0,
         submitting: false,
-        /** Loyalty balance from API when returning customer; 0 for new profiles */
-        customerLoyaltyPoints: 0,
     };
 }
 
@@ -208,24 +202,15 @@ export default function KioskApp() {
         const snap = bootstrap.snapshot;
         let recommendationData = null;
         let customerId = null;
-        let availableCoupons = [];
-        let customerLoyaltyPoints = 0;
         try {
             const existingCustomer = await findCustomerByEmail(info.email);
             if (existingCustomer) {
                 customerId = existingCustomer.id || existingCustomer.customer_id;
-                const lp = Number(existingCustomer.loyaltyPoints ?? 0);
-                customerLoyaltyPoints = Number.isFinite(lp) ? lp : 0;
                 recommendationData = await fetchRecommendations(
                     customerId,
                     info.preferredDate || null,
                     3,
                 );
-                try {
-                    availableCoupons = await fetchCustomerCoupons(customerId);
-                } catch (_) {
-                    availableCoupons = [];
-                }
             } else {
                 recommendationData = buildClientPopularRecommendations(snap, 3);
                 if (!recommendationData?.recommendations?.length) {
@@ -255,11 +240,7 @@ export default function KioskApp() {
 
         update({
             customerId,
-            customerLoyaltyPoints,
             recommendationData,
-            availableCoupons,
-            selectedCoupon: null,
-            couponDiscount: 0,
             showCustomerForm: false,
             showSummary: state.requestSummaryAfterCustomerForm,
             requestSummaryAfterCustomerForm: false,
@@ -292,7 +273,7 @@ export default function KioskApp() {
     async function handleConfirmBooking() {
         update({ submitting: true });
         try {
-            const totalAmount = calcTotal() - (state.couponDiscount || 0);
+            const totalAmount = calcTotal();
             await submitBooking({
                 customer: {
                     full_name: state.customerInfo.fullName,
@@ -309,7 +290,6 @@ export default function KioskApp() {
                 })),
                 preferred_date: state.customerInfo.preferredDate,
                 total_amount: totalAmount,
-                coupon_id: state.selectedCoupon?.id ?? null,
                 customer_id: state.customerId,
             });
             update({
@@ -785,8 +765,6 @@ export default function KioskApp() {
                         onSelectPackage={handleSelectPackage}
                         onBack={handleBackToCategory}
                         kioskSnapshot={kioskSnapshot}
-                        loyaltyBalance={state.customerLoyaltyPoints}
-                        loyaltySettings={kioskSnapshot?.loyaltySettings ?? null}
                     />
                 )}
                 {state.step === 2 && (
@@ -829,17 +807,7 @@ export default function KioskApp() {
                 selectedPackage={state.selectedPackage}
                 selectedAddons={state.selectedAddons}
                 customerInfo={state.customerInfo}
-                customerId={state.customerId}
                 loading={state.submitting}
-                selectedCoupon={state.selectedCoupon}
-                couponDiscount={state.couponDiscount}
-                onSelectCoupon={(coupon, discount) =>
-                    update({ selectedCoupon: coupon, couponDiscount: discount })
-                }
-                onRemoveCoupon={() =>
-                    update({ selectedCoupon: null, couponDiscount: 0 })
-                }
-                availableCoupons={state.availableCoupons}
             />
         </SafeAreaView>
     );
