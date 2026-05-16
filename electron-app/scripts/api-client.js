@@ -25,9 +25,35 @@ async function _request(method, path, body = null, options = {}) {
         timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     }
 
-    let res;
     try {
-        res = await fetch(`${API_BASE}${path}`, opts);
+        const res = await fetch(`${API_BASE}${path}`, opts);
+
+        if (!res.ok) {
+            let detail = res.statusText;
+            let body = null;
+            try {
+                body = await res.json();
+                if (typeof body?.message === "string" && body.message.trim()) {
+                    detail = body.message.trim();
+                } else if (typeof body?.detail === "string" && body.detail.trim()) {
+                    detail = body.detail.trim();
+                } else if (Array.isArray(body?.detail)) {
+                    detail = body.detail.map(String).join(" ");
+                } else if (body && typeof body === "object") {
+                    detail = JSON.stringify(body);
+                }
+            } catch (_) {
+                try {
+                    const text = await res.text();
+                    if (text && text.trim()) detail = text.trim().slice(0, 600);
+                } catch (_) {}
+            }
+            const err = new Error(detail);
+            err.status = res.status;
+            err.body = body;
+            throw err;
+        }
+        return res.status === 204 ? null : res.json();
     } catch (err) {
         if (err?.name === "AbortError") {
             throw new Error(
@@ -39,33 +65,6 @@ async function _request(method, path, body = null, options = {}) {
     } finally {
         if (timeoutId !== null) clearTimeout(timeoutId);
     }
-
-    if (!res.ok) {
-        let detail = res.statusText;
-        let body = null;
-        try {
-            body = await res.json();
-            if (typeof body?.message === "string" && body.message.trim()) {
-                detail = body.message.trim();
-            } else if (typeof body?.detail === "string" && body.detail.trim()) {
-                detail = body.detail.trim();
-            } else if (Array.isArray(body?.detail)) {
-                detail = body.detail.map(String).join(" ");
-            } else if (body && typeof body === "object") {
-                detail = JSON.stringify(body);
-            }
-        } catch (_) {
-            try {
-                const text = await res.text();
-                if (text && text.trim()) detail = text.trim().slice(0, 600);
-            } catch (_) {}
-        }
-        const err = new Error(detail);
-        err.status = res.status;
-        err.body = body;
-        throw err;
-    }
-    return res.status === 204 ? null : res.json();
 }
 
 // Unwrap DRF PageNumberPagination responses only (count/next/previous + results).
