@@ -46,7 +46,10 @@ from backend.loyalty_utils import (
     maybe_credit_booking,
     claim_points_for_package,
 )
-from backend.renewal_utils import recompute_customer_renewal_profile
+from backend.renewal_utils import (
+    heuristic_renewal_probability,
+    recompute_customer_renewal_profile,
+)
 from .serializers import (
     CustomerListSerializer,
     CustomerDetailSerializer,
@@ -76,6 +79,11 @@ VISIBLE_CUSTOMER_BOOKING_FILTER = (
     Q(bookings__session_status="BOOKED")
     | Q(bookings__session_status__isnull=True)
     | Q(bookings__session_status="")
+)
+VISIBLE_BOOKING_FILTER = (
+    Q(session_status="BOOKED")
+    | Q(session_status__isnull=True)
+    | Q(session_status="")
 )
 
 
@@ -235,9 +243,66 @@ class CustomerViewSet(viewsets.ModelViewSet):
         Returns every customer with live booking count.
         Used by the customer data table (client-side filter/sort/page).
         """
-        qs = self.get_queryset()
-        serializer = CustomerListSerializer(qs, many=True)
-        return Response(serializer.data)
+        customers = list(
+            Customer.objects.filter(deleted_at__isnull=True)
+            .select_related("renewal", "package")
+            .only(
+                "customer_id",
+                "full_name",
+                "email",
+                "contact_number",
+                "consent",
+                "loyalty_points",
+                "package_id",
+                "package__name",
+                "created_at",
+                "last_updated",
+                "renewal__total_bookings",
+                "renewal__avg_booking_value",
+                "renewal__booking_frequency",
+                "renewal__renewed_within_366",
+                "renewal__total_spent",
+                "renewal__preferred_package_type",
+            )
+            .order_by("created_at")
+        )
+        customer_ids = [c.customer_id for c in customers]
+        booking_counts = dict(
+            Booking.objects.filter(
+                VISIBLE_BOOKING_FILTER,
+                customer_id__in=customer_ids,
+            )
+            .values("customer_id")
+            .annotate(n=Count("id"))
+            .values_list("customer_id", "n")
+        )
+
+        rows = []
+        for customer in customers:
+            try:
+                renewal = customer.renewal
+            except Renewal.DoesNotExist:
+                renewal = None
+            package = customer.package
+            rows.append(
+                {
+                    "id": customer.customer_id,
+                    "name": customer.full_name,
+                    "email": customer.email,
+                    "contactNo": customer.contact_number or "",
+                    "consent": customer.consent,
+                    "bookings": booking_counts.get(customer.customer_id, 0),
+                    "renewalRate": round(
+                        float(heuristic_renewal_probability(renewal)),
+                        4,
+                    ),
+                    "loyaltyPoints": customer.loyalty_points,
+                    "claimedPackageId": customer.package_id,
+                    "claimedPackageName": package.name if package else None,
+                    "updatedAt": customer.last_updated,
+                }
+            )
+        return Response(rows)
 
     # ── extra read action: GET /api/customers/by-email/?email=xxx ─────────────
     @action(detail=False, methods=["get"], url_path="by-email")
