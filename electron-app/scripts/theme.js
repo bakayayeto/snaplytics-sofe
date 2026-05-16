@@ -55,7 +55,7 @@
         var moon = btn.querySelector(".theme-toggle-icon--moon");
         var sun = btn.querySelector(".theme-toggle-icon--sun");
         if (moon && sun) {
-            // Light mode: show sun (action = switch to dark). Dark mode: show moon (action = switch to light).
+            // Light: sun visible. Dark: moon visible.
             moon.hidden = !dark;
             sun.hidden = dark;
         }
