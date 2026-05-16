@@ -65,7 +65,7 @@
     <text x="36" y="884" class="t">Ecstasy 1.0 greedy yields [2,6,7,8] with score 1.5177350282057984; Adore 17.0 yields [34,2,6,7] at 1.201.</text>
     <text x="36" y="906" class="t">Sort three bundles by score: Delight 1.536333, Ecstasy 1.517735, Adore 1.201.</text>
     <text x="36" y="928" class="hl" font-weight="700">Top bundle: package_id 2.0 (Delight) + addon ids [2, 7, 8, 6]</text>
-    <text x="36" y="950" class="s">Map labels in your copy: history used addon::7 (e.g. soft copies); model picks different high-est ids under this seed.</text>
+    <text x="36" y="950" class="s">Map labels in your copy: history used addon::7 (e.g. soft copies); model picks high-est addon ids from greedy; values come from shipped surprise_model.pkl.</text>
     <animate attributeName="opacity" values="0;1" dur="0.7s" fill="freeze" begin="1.9s"/>
   </g>
 
