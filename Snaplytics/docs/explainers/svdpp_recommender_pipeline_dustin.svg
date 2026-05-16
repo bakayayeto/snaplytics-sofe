@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 1680" font-family="system-ui,Segoe UI,sans-serif">
+  <defs>
+    <style>
+      .t{font-size:14px;fill:#1e293b}
+      .h{font-size:19px;font-weight:700;fill:#0f172a}
+      .s{font-size:11px;fill:#64748b}
+      .box{fill:#fff;stroke:#334155;stroke-width:1.5;rx:8}
+      .hl{fill:#0369a1}
+      .fb{fill:#9a3412}
+    </style>
+    <marker id="marr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <polygon points="0,0 8,4 0,8" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f1f5f9"/>
+  <text x="460" y="34" text-anchor="middle" class="h">SVD++ recommender pipeline - customer_id 235 (Dustin Dwayne Diaz)</text>
+  <text x="460" y="56" text-anchor="middle" class="s">Numerics: committed recommender/models/surprise_model.pkl (Surprise SVD++ on recommender/data/train_ratings.csv)</text>
+
+  <g opacity="0">
+    <rect x="20" y="72" width="880" height="210" class="box"/>
+    <text x="36" y="98" class="h" font-size="15">1) Bookings (concept + shipped CSV)</text>
+    <text x="36" y="122" class="t">Live: Booking rows + BookingAddon rows (session_status in Ongoing, BOOKED).</text>
+    <text x="36" y="144" class="t">ETL: merged_bookings.csv + booking_addons.csv - customer 235 has 3 rows in shipped merged (Delight, Ecstasy, Allure).</text>
+    <text x="36" y="166" class="t">Your five-session story includes Mar 2026 Adore; that row is not in shipped merged - month table below uses 2026-03 anyway to match that scenario.</text>
+    <text x="36" y="190" class="s">Addons in history (train data): Delight + addon::7; Ecstasy + addon::9; Allure + addon::5, addon::12 (implicit rating 1 each).</text>
+    <text x="36" y="212" class="s">Implicit matrix: one row per (user_id, item_id) with rating in [0,1] here always 1 for positives.</text>
+    <animate attributeName="opacity" values="0;1" dur="0.55s" fill="freeze" begin="0s"/>
+  </g>
+
+  <g opacity="0">
+    <path d="M460 282 L460 308" stroke="#334155" stroke-width="2" marker-end="url(#marr)"/>
+    <rect x="20" y="312" width="880" height="130" class="box"/>
+    <text x="36" y="338" class="h" font-size="15">2) Train Surprise SVD++ (recommender/trainer.py pattern)</text>
+    <text x="36" y="362" class="t">Reader(rating_scale=(0,1)); build_full_trainset(); SVDpp.fit - learns mu, user biases bu, item biases bi,</text>
+    <text x="36" y="384" class="t">latent factors p_u, q_i, and implicit y_j for items in each user implicit neighborhood (SVD++ paper).</text>
+    <text x="36" y="406" class="t">Predict: est(u,i) used by recommender/loader.predict_est for package ids (e.g. "2.0") and addons as "addon::id".</text>
+    <text x="36" y="428" class="s">Trainset here: 1397 users, 32 items (packages + addon tokens coarsely).</text>
+    <animate attributeName="opacity" values="0;1" dur="0.55s" fill="freeze" begin="0.6s"/>
+  </g>
+
+  <g opacity="0">
+    <path d="M460 442 L460 468" stroke="#334155" stroke-width="2" marker-end="url(#marr)"/>
+    <rect x="20" y="472" width="880" height="200" class="box"/>
+    <text x="36" y="498" class="h" font-size="15">3) recommend_for_user (recommender/loader.py)</text>
+    <text x="36" y="522" class="t">load_popularity_tables() - month_package_popularity, month_addon_popularity, month_package_addon_cooccurrence.</text>
+    <text x="36" y="544" class="t">prepare_month_tables_with_fallback(month="2026-03") - candidate packages for that month: ["17.0","1.0","2.0","5.0"] (counts 2,1,1,1).</text>
+    <text x="36" y="566" class="t">is_known_user(235) = True - skip popularity-only path.</text>
+    <text x="36" y="588" class="t">For each candidate package p: score0 = predict_est(235,p) + get_user_package_history_pct(235,p).</text>
+    <text x="36" y="610" class="t">Shipped merged_bookings.csv: hist 1/3 for packages 1.0, 2.0, 3.0; March pool has 1.0,2.0 so both get +0.333333 boost.</text>
+    <text x="36" y="632" class="t">Package score0 = predict_est + hist: 2.0 -&gt; 1.333333, 1.0 -&gt; 1.307336, 17.0 -&gt; 1.0, 5.0 -&gt; 0.952974. Top-3 packages = ["2.0","1.0","17.0"].</text>
+    <text x="36" y="654" class="s">alpha=0.6, MAX_ADDONS_PER_PACKAGE=4, MARGINAL_THRESHOLD=0.01, SIZE_PENALTY_MULT=0.25.</text>
+    <animate attributeName="opacity" values="0;1" dur="0.65s" fill="freeze" begin="1.2s"/>
+  </g>
+
+  <g opacity="0">
+    <path d="M460 672 L460 698" stroke="#334155" stroke-width="2" marker-end="url(#marr)"/>
+    <rect x="20" y="702" width="880" height="280" class="box"/>
+    <text x="36" y="728" class="h" font-size="15">4) Greedy addons per package (subset_score_for_user)</text>
+    <text x="36" y="752" class="t">subset_score = 0.6*pkg_pred + 0.4*sum(addon_pred) + 0.001*sum(package_addon_cooc) - 0.25*num_addons + hist_pct</text>
+    <text x="36" y="774" class="t">Candidate order for package 2.0 (Delight): ["2","7","8","11","6","34"] from coocc + global addon popularity.</text>
+    <text x="36" y="796" class="t">Package 2.0 greedy (marginal gain &gt; 0.01): start 0.933333; pick addon 2 (+0.151) -&gt; 1.084333;</text>
+    <text x="36" y="818" class="t">pick 7 (+0.151) -&gt; 1.235333; pick 8 (+0.151) -&gt; 1.386333; pick 6 (+0.15) -&gt; 1.536333.</text>
+    <text x="36" y="840" class="t">Final decomposition (2.0, addons [2,7,8,6]): pkg_pred=1, addon_preds each 1, cooc sum=3,</text>
+    <text x="36" y="862" class="t">size penalty 1.0, hist 0.333333 =&gt; 0.6*1 + 0.4*4 + 0.003 - 1.0 + 0.333333 = 1.5363333333333336.</text>
+    <text x="36" y="884" class="t">Ecstasy 1.0 greedy yields [2,6,7,8] with score 1.5177350282057984; Adore 17.0 yields [34,2,6,7] at 1.201.</text>
+    <text x="36" y="906" class="t">Sort three bundles by score: Delight 1.536333, Ecstasy 1.517735, Adore 1.201.</text>
+    <text x="36" y="928" class="hl" font-weight="700">Top bundle: package_id 2.0 (Delight) + addon ids [2, 7, 8, 6]</text>
+    <text x="36" y="950" class="s">Map labels in your copy: history used addon::7 (e.g. soft copies); model picks different high-est ids under this seed.</text>
+    <animate attributeName="opacity" values="0;1" dur="0.7s" fill="freeze" begin="1.9s"/>
+  </g>
+
+  <g opacity="0">
+    <rect x="20" y="1000" width="880" height="300" class="box" stroke="#9a3412"/>
+    <text x="36" y="1026" class="fb" font-size="15" font-weight="700">5) Popularity fallback (cold user or missing model)</text>
+    <text x="36" y="1052" class="t">If algo is None OR not is_known_user: _popularity_fallback(pkg_pop, addon_pop, coocc, top_k).</text>
+    <text x="36" y="1074" class="t">Example: user_id 99999999, month 2026-03 returns source=popularity_fallback</text>
+    <text x="36" y="1096" class="t">[((17.0, [34]), 2.0), ((1.0, []), 1.0), ((2.0, [2,7,8,11]), 1.0)] - scores are package month counts (coarse).</text>
+    <text x="36" y="1118" class="t">recommender/service.py: live Django path can return history-based recs before CF; loader path is the SVD++ + greedy stack above.</text>
+    <text x="36" y="1140" class="s">Re-run: python -m recommender.loader --user 235 --month 2026-03 (same loader + pickle).</text>
+    <animate attributeName="opacity" values="0;1" dur="0.6s" fill="freeze" begin="2.6s"/>
+  </g>
+
+  <text x="460" y="1340" text-anchor="middle" class="s">SMIL steps replay on refresh. Numbers tied to shipped CSV artifacts + surprise_model.pkl in repo.</text>
+</svg>
