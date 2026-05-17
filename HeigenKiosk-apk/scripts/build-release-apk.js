@@ -14,6 +14,81 @@ const tempRoot = path.join(
 );
 const tempProject = path.join(tempRoot, "HeigenKiosk-apk");
 
+/** RN/AGP 8.2 needs JDK 17; Gradle on JDK 22+ breaks com.facebook.react.settings (error shows Java version e.g. > 25.0.2). */
+function tryJdk17Home(candidateHome) {
+  if (!candidateHome || !fs.existsSync(candidateHome)) {
+    return null;
+  }
+  const java =
+    process.platform === "win32"
+      ? path.join(candidateHome, "bin", "java.exe")
+      : path.join(candidateHome, "bin", "java");
+  if (!fs.existsSync(java)) {
+    return null;
+  }
+  const r = spawnSync(java, ["-version"], { encoding: "utf8" });
+  const out = `${r.stderr || ""}${r.stdout || ""}`;
+  return /version "17[\d.]*/.test(out) ? candidateHome : null;
+}
+
+function findJdk17Home() {
+  const fromEnv = tryJdk17Home(process.env.JAVA_HOME);
+  if (fromEnv) {
+    return fromEnv;
+  }
+  if (process.platform === "win32" && process.env.ProgramFiles) {
+    const adoptium = path.join(process.env.ProgramFiles, "Eclipse Adoptium");
+    if (fs.existsSync(adoptium)) {
+      const dirs = fs
+        .readdirSync(adoptium)
+        .filter((d) => /^jdk-17/i.test(d))
+        .sort();
+      for (let i = dirs.length - 1; i >= 0; i--) {
+        const h = tryJdk17Home(path.join(adoptium, dirs[i]));
+        if (h) {
+          return h;
+        }
+      }
+    }
+  }
+  if (process.platform === "darwin") {
+    const r = spawnSync("/usr/libexec/java_home", ["-v", "17"], {
+      encoding: "utf8",
+    });
+    if (r.status === 0) {
+      const home = (r.stdout || "").trim();
+      if (home) {
+        const h = tryJdk17Home(home);
+        if (h) {
+          return h;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function envWithJdk17(baseEnv = process.env) {
+  const jdk17 = findJdk17Home();
+  if (!jdk17) {
+    console.error(
+      [
+        "JDK 17 not found (Gradle needs it; Java 21+ often breaks RN 0.74 plugin resolution).",
+        "Install Temurin 17, or set JAVA_HOME to a JDK 17 folder, then retry.",
+        'PowerShell: $env:JAVA_HOME = "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.19.10-hotspot"',
+      ].join("\n"),
+    );
+    process.exit(1);
+  }
+  const out = { ...baseEnv, JAVA_HOME: jdk17 };
+  const sep = process.platform === "win32" ? ";" : ":";
+  out.PATH = path.join(jdk17, "bin") + sep + (out.PATH || "");
+  if (baseEnv.JAVA_HOME !== jdk17) {
+    console.error(`Using JDK 17 for this step: ${jdk17}`);
+  }
+  return out;
+}
+
 function resolveAndroidSdkRoot() {
   const fromEnv =
     process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
@@ -88,7 +163,8 @@ function ensureDebugKeystore() {
     console.error("Copied android/app/debug.keystore into temp build tree.");
     return;
   }
-  const javaHome = process.env.JAVA_HOME;
+  const jdk17 = findJdk17Home();
+  const javaHome = jdk17 || process.env.JAVA_HOME;
   const keytool =
     javaHome && process.platform === "win32"
       ? path.join(javaHome, "bin", "keytool.exe")
@@ -120,7 +196,7 @@ function ensureDebugKeystore() {
   );
   const r = spawnSync(keytool, args, {
     stdio: "inherit",
-    env: { ...process.env },
+    env: jdk17 ? envWithJdk17() : { ...process.env },
     shell: false,
   });
   if (r.status !== 0) {
@@ -137,13 +213,13 @@ function ensureDebugKeystore() {
   console.error("Created debug.keystore for this temp build.");
 }
 
-function run(label, command, cwd, shell = true) {
+function run(label, command, cwd, shell = true, env = process.env) {
   console.error(`\n>> ${label}\n`);
   const r = spawnSync(command, {
     cwd,
     shell,
     stdio: "inherit",
-    env: { ...process.env },
+    env,
   });
   if (r.status !== 0) {
     console.error(`\nFailed: ${label} (exit ${r.status})\n`);
@@ -182,7 +258,13 @@ const gradlew =
   process.platform === "win32"
     ? "gradlew.bat assembleRelease --no-daemon"
     : "./gradlew assembleRelease --no-daemon";
-run("Gradle assembleRelease", gradlew, path.join(tempProject, "android"));
+run(
+  "Gradle assembleRelease",
+  gradlew,
+  path.join(tempProject, "android"),
+  true,
+  envWithJdk17(),
+);
 
 const apkSrc = path.join(
   tempProject,
