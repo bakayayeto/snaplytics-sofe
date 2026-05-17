@@ -75,6 +75,68 @@ function ensureAndroidSdkForTempBuild() {
   );
 }
 
+/** Repo .gitignore has *.keystore — debug.keystore is not committed. Gradle release uses it for signing. */
+function ensureDebugKeystore() {
+  const appDir = path.join(tempProject, "android", "app");
+  const dest = path.join(appDir, "debug.keystore");
+  const src = path.join(projectRoot, "android", "app", "debug.keystore");
+  if (fs.existsSync(dest)) {
+    return;
+  }
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+    console.error("Copied android/app/debug.keystore into temp build tree.");
+    return;
+  }
+  const javaHome = process.env.JAVA_HOME;
+  const keytool =
+    javaHome && process.platform === "win32"
+      ? path.join(javaHome, "bin", "keytool.exe")
+      : javaHome
+        ? path.join(javaHome, "bin", "keytool")
+        : "keytool";
+  const args = [
+    "-genkey",
+    "-v",
+    "-keystore",
+    dest,
+    "-storepass",
+    "android",
+    "-alias",
+    "androiddebugkey",
+    "-keypass",
+    "android",
+    "-keyalg",
+    "RSA",
+    "-keysize",
+    "2048",
+    "-validity",
+    "10000",
+    "-dname",
+    "CN=Android Debug,O=Android,C=US",
+  ];
+  console.error(
+    "\n>> Creating android/app/debug.keystore (not in git — *.keystore ignored)\n",
+  );
+  const r = spawnSync(keytool, args, {
+    stdio: "inherit",
+    env: { ...process.env },
+    shell: false,
+  });
+  if (r.status !== 0) {
+    console.error(
+      [
+        "keytool failed — release APK needs a keystore.",
+        "Set JAVA_HOME to JDK 17, or create HeigenKiosk-apk/android/app/debug.keystore manually:",
+        '  keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"',
+        "(run from android/app directory)",
+      ].join("\n"),
+    );
+    process.exit(r.status ?? 1);
+  }
+  console.error("Created debug.keystore for this temp build.");
+}
+
 function run(label, command, cwd, shell = true) {
   console.error(`\n>> ${label}\n`);
   const r = spawnSync(command, {
@@ -112,6 +174,7 @@ if (fs.existsSync(envSrc)) {
 }
 
 ensureAndroidSdkForTempBuild();
+ensureDebugKeystore();
 
 run("npm install", "npm install", tempProject);
 
