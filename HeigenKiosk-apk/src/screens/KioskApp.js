@@ -23,6 +23,8 @@ import {
     snapshotFindCustomerByEmail,
     snapshotFetchRecommendations,
     snapshotFetchPopularRecommendations,
+    snapshotFetchCustomerCoupons,
+    snapshotValidateCoupon,
     submitBooking,
 } from "../api/client";
 import {
@@ -47,6 +49,9 @@ function createInitialState() {
         selectedAddons: [],
         customerInfo: null,
         customerId: null,
+        availableCoupons: [],
+        selectedCoupon: null,
+        couponDiscount: 0,
         showCustomerForm: true,
         showSummary: false,
         showExitPage: false,
@@ -166,6 +171,7 @@ export default function KioskApp() {
         const snap = bootstrap.snapshot;
         let recommendationData = null;
         let customerId = null;
+        let availableCoupons = [];
         try {
             const existingCustomer = snapshotFindCustomerByEmail(snap, info.email);
             if (existingCustomer) {
@@ -175,6 +181,14 @@ export default function KioskApp() {
                     customerId,
                     3,
                 );
+                try {
+                    availableCoupons = snapshotFetchCustomerCoupons(
+                        snap,
+                        customerId,
+                    );
+                } catch (_) {
+                    availableCoupons = [];
+                }
             } else {
                 recommendationData = snapshotFetchPopularRecommendations(snap, 3);
             }
@@ -189,7 +203,10 @@ export default function KioskApp() {
         update({
             customerId,
             recommendationData,
-                    showCustomerForm: false,
+            availableCoupons,
+            selectedCoupon: null,
+            couponDiscount: 0,
+            showCustomerForm: false,
             showSummary: state.requestSummaryAfterCustomerForm,
             requestSummaryAfterCustomerForm: false,
             loadingCustomerCheck: false,
@@ -216,7 +233,7 @@ export default function KioskApp() {
     async function handleConfirmBooking() {
         update({ submitting: true });
         try {
-            const totalAmount = calcTotal();
+            const totalAmount = calcTotal() - (state.couponDiscount || 0);
             await submitBooking(
                 {
                     customer: {
@@ -231,6 +248,7 @@ export default function KioskApp() {
                     addon_ids: state.selectedAddons.map((a) => a.id),
                     preferred_date: state.customerInfo.preferredDate,
                     total_amount: totalAmount,
+                    coupon_id: state.selectedCoupon?.id ?? null,
                     customer_id: state.customerId,
                 },
                 bootstrap.snapshot,
@@ -291,6 +309,16 @@ export default function KioskApp() {
     }
 
     const kioskSnapshot = bootstrap.snapshot;
+    const validateCouponFromCache = (code, customerIdArg, subtotalVal) =>
+        Promise.resolve(
+            snapshotValidateCoupon(
+                kioskSnapshot,
+                code,
+                customerIdArg,
+                subtotalVal,
+            ),
+        );
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
             <StatusBar style="dark" />
@@ -760,7 +788,19 @@ export default function KioskApp() {
                 selectedPackage={state.selectedPackage}
                 selectedAddons={state.selectedAddons}
                 customerInfo={state.customerInfo}
+                customerId={state.customerId}
                 loading={state.submitting}
+                selectedCoupon={state.selectedCoupon}
+                couponDiscount={state.couponDiscount}
+                subtotal={calcTotal()}
+                onSelectCoupon={(coupon, discount) =>
+                    update({ selectedCoupon: coupon, couponDiscount: discount })
+                }
+                onRemoveCoupon={() =>
+                    update({ selectedCoupon: null, couponDiscount: 0 })
+                }
+                availableCoupons={state.availableCoupons}
+                validateCouponFn={validateCouponFromCache}
             />
         </SafeAreaView>
     );

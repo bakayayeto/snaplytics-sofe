@@ -111,9 +111,7 @@ android {
 
     namespace "com.heigenstudio.kiosk"
     defaultConfig {
-        // Must match Kotlin package (com.heigenstudio.kiosk.*). Suffix ".apk" caused
-        // ClassNotFoundException: MainApplication on some devices (install id vs dex package).
-        applicationId "com.heigenstudio.kiosk"
+        applicationId "com.heigenstudio.kiosk.apk"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

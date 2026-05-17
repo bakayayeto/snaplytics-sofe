@@ -9,21 +9,21 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#4F6E79"
+      "backgroundColor": "#f9fafb"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.heigenstudio.kiosk"
+      "bundleIdentifier": "com.heigenstudio.kiosk.apk"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4F6E79"
+        "backgroundColor": "#f9fafb"
       },
-      "package": "com.heigenstudio.kiosk"
+      "package": "com.heigenstudio.kiosk.apk"
     },
     "web": {
       "favicon": "./assets/favicon.png",

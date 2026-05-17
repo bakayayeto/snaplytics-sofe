@@ -12,8 +12,6 @@
 -keep class com.facebook.react.turbomodule.** { *; }
 
 # Add any project specific keep options here:
--keep class com.heigenstudio.kiosk.MainApplication { *; }
--keep class com.heigenstudio.kiosk.MainActivity { *; }
 
 # Postgres JDBC (pooler POC)
 -keep class org.postgresql.** { *; }

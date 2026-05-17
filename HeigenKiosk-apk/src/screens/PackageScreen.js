@@ -194,6 +194,10 @@ export default function PackageScreen({ category, onSelectPackage, onBack, kiosk
     );
 }
 
+function hasPromo(pkg) {
+    return pkg.promo_price != null && Number(pkg.promo_price) > 0;
+}
+
 /** Single currency label everywhere (avoid mixing "PHP" in artwork vs ₱ in UI). */
 function formatPeso(amount) {
     const n = Number(amount);
@@ -235,10 +239,8 @@ function IncludeRow({ text, color, s, fs }) {
 function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
     const borderColor = popular ? colors.primary : colors.border;
     const bgColor = colors.card;
-    const effectivePrice =
-        pkg.promo_price != null && Number(pkg.promo_price) > 0
-            ? pkg.promo_price
-            : pkg.price;
+    const listPrice = pkg.price;
+    const effectivePrice = hasPromo(pkg) ? pkg.promo_price : pkg.price;
     const inclusions = parseStringArrayField(pkg.inclusions) ?? [];
     const freebies = parseStringArrayField(pkg.freebies) ?? [];
     const portraitLine = formatPortraitIncludedLine(pkg.included_portraits);
@@ -343,6 +345,19 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                             {pkg.name}
                         </Text>
                         <View style={{ alignItems: "flex-end", flexShrink: 0 }}>
+                            {hasPromo(pkg) && (
+                                <Text
+                                    style={{
+                                        fontSize: fs(11),
+                                        color: "rgba(255,255,255,0.65)",
+                                        textDecorationLine: "line-through",
+                                        marginBottom: s(2),
+                                    }}
+                                    allowFontScaling={false}
+                                >
+                                    {formatPeso(listPrice)}
+                                </Text>
+                            )}
                             <Text
                                 style={{
                                     fontSize: fs(16),
@@ -404,6 +419,19 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                             minWidth: s(88),
                         }}
                     >
+                        {hasPromo(pkg) && (
+                            <Text
+                                style={{
+                                    fontSize: fs(12),
+                                    color: colors.mutedForeground,
+                                    textDecorationLine: "line-through",
+                                }}
+                                allowFontScaling={false}
+                            >
+                                {formatPeso(listPrice)}
+                            </Text>
+                        )}
+
                         <Text
                             style={{
                                 fontSize: fs(20),
@@ -414,6 +442,31 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                         >
                             {formatPeso(effectivePrice)}
                         </Text>
+
+                        {!!pkg.promo_price_condition && (
+                            <View
+                                style={{
+                                    backgroundColor: colors.warning,
+                                    borderWidth: 1,
+                                    borderColor: "#fde68a",
+                                    borderRadius: s(radii.sm),
+                                    paddingHorizontal: s(spacing.sm),
+                                    paddingVertical: s(2),
+                                    marginTop: s(4),
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontSize: fs(11),
+                                        fontWeight: "600",
+                                        color: colors.warningText,
+                                    }}
+                                    allowFontScaling={false}
+                                >
+                                    {String(pkg.promo_price_condition)}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </View>
             </View>
