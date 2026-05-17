@@ -46,6 +46,8 @@ coverage/
 *.log
 
 # React Native / Expo / Android generated files
+# Duplicate Kotlin package from expo prebuild — breaks compile (R / BuildConfig vs namespace)
+HeigenKiosk-apk/android/app/src/main/java/com/heigenstudio/kiosk/apk/
 .expo/
 .gradle/
 .cxx/

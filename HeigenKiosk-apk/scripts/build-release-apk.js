@@ -237,7 +237,25 @@ function run(label, command, cwd, shell = true, env = process.env) {
 fs.rmSync(tempProject, { recursive: true, force: true });
 fs.mkdirSync(tempRoot, { recursive: true });
 
-const robocopyCmd = `robocopy "${projectRoot}" "${tempProject}" /E /XD node_modules android\\.gradle android\\app\\build android\\build /NFL /NDL /NJH /NJS`;
+const strayPrebuildApkJava = path.join(
+  projectRoot,
+  "android",
+  "app",
+  "src",
+  "main",
+  "java",
+  "com",
+  "heigenstudio",
+  "kiosk",
+  "apk",
+);
+if (fs.existsSync(strayPrebuildApkJava)) {
+  console.error(
+    "\nWARNING: android/app/src/main/java/com/heigenstudio/kiosk/apk/ exists (usually from `expo prebuild`). It breaks release Kotlin (R / BuildConfig). Delete that folder locally. Excluding it from this temp copy.\n",
+  );
+}
+
+const robocopyCmd = `robocopy "${projectRoot}" "${tempProject}" /E /XD node_modules android\\.gradle android\\app\\build android\\build android\\app\\src\\main\\java\\com\\heigenstudio\\kiosk\\apk /NFL /NDL /NJH /NJS`;
 const rc = spawnSync(robocopyCmd, { shell: true, encoding: "utf8" });
 // Robocopy: 0 = nothing, 1-7 = success with copies, >=8 = error
 if (rc.status != null && rc.status >= 8) {
