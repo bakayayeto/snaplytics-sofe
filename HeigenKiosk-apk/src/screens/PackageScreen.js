@@ -13,12 +13,14 @@ import { LoadingScreen, ErrorScreen, Button } from "../components/ui";
 import { colors, spacing, radii, shadow } from "../constants/theme";
 import { useScale } from "../hooks/useScale";
 import { resolvePackageImage } from "../constants/assets";
-import {
-    parseStringArrayField,
-    formatPortraitIncludedLine,
-} from "../utils/packageFieldParse";
+import { effectivePackagePriceForClaim } from "../utils/loyaltyClaim";
 
-export default function PackageScreen({ category, onSelectPackage, onBack, kioskSnapshot = null }) {
+export default function PackageScreen({
+    category,
+    onSelectPackage,
+    onBack,
+    kioskSnapshot = null,
+}) {
     const { s, fs, isTablet, W } = useScale();
     const [scrollY, setScrollY] = useState(0);
     const [contentHeight, setContentHeight] = useState(0);
@@ -81,7 +83,6 @@ export default function PackageScreen({ category, onSelectPackage, onBack, kiosk
     const canScrollDown = maxScroll > s(8);
     const isNearBottom = scrollY >= maxScroll - s(20);
     const showScrollHint = canScrollDown && !isNearBottom;
-
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <ScrollView
@@ -193,11 +194,12 @@ export default function PackageScreen({ category, onSelectPackage, onBack, kiosk
         </View>
     );
 }
-
-function hasPromo(pkg) {
-    return pkg.promo_price != null && Number(pkg.promo_price) > 0;
+function toStringArray(val) {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.map(String);
+    if (typeof val === "object") return Object.values(val).map(String);
+    return [String(val)];
 }
-
 /** Single currency label everywhere (avoid mixing "PHP" in artwork vs ₱ in UI). */
 function formatPeso(amount) {
     const n = Number(amount);
@@ -233,17 +235,21 @@ function IncludeRow({ text, color, s, fs }) {
         </View>
     );
 }
-
 // Same image height + bar layout for every card so side-by-side rows align.
 // Authoritative price on the teal bar (API) so it always matches the body (fixes baked "PHP" on artwork).
-function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
+function PackageCard({
+    pkg,
+    onPress,
+    popular = false,
+    s,
+    fs,
+    width,
+}) {
     const borderColor = popular ? colors.primary : colors.border;
     const bgColor = colors.card;
-    const listPrice = pkg.price;
-    const effectivePrice = hasPromo(pkg) ? pkg.promo_price : pkg.price;
-    const inclusions = parseStringArrayField(pkg.inclusions) ?? [];
-    const freebies = parseStringArrayField(pkg.freebies) ?? [];
-    const portraitLine = formatPortraitIncludedLine(pkg.included_portraits);
+    const effectivePrice = effectivePackagePriceForClaim(pkg);
+    const inclusions = toStringArray(pkg.inclusions);
+    const freebies = toStringArray(pkg.freebies);
     const packageImage = resolvePackageImage(pkg);
     const imageHeight = s(168);
     const barPadH = s(spacing.lg);
@@ -345,19 +351,6 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                             {pkg.name}
                         </Text>
                         <View style={{ alignItems: "flex-end", flexShrink: 0 }}>
-                            {hasPromo(pkg) && (
-                                <Text
-                                    style={{
-                                        fontSize: fs(11),
-                                        color: "rgba(255,255,255,0.65)",
-                                        textDecorationLine: "line-through",
-                                        marginBottom: s(2),
-                                    }}
-                                    allowFontScaling={false}
-                                >
-                                    {formatPeso(listPrice)}
-                                </Text>
-                            )}
                             <Text
                                 style={{
                                     fontSize: fs(16),
@@ -388,9 +381,9 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                             paddingTop: 0,
                         }}
                     >
-                        {portraitLine != null && (
+                        {pkg.included_portraits != null && (
                             <IncludeRow
-                                text={portraitLine}
+                                text={`${pkg.included_portraits} portrait(s) included`}
                                 s={s}
                                 fs={fs}
                             />
@@ -419,19 +412,6 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                             minWidth: s(88),
                         }}
                     >
-                        {hasPromo(pkg) && (
-                            <Text
-                                style={{
-                                    fontSize: fs(12),
-                                    color: colors.mutedForeground,
-                                    textDecorationLine: "line-through",
-                                }}
-                                allowFontScaling={false}
-                            >
-                                {formatPeso(listPrice)}
-                            </Text>
-                        )}
-
                         <Text
                             style={{
                                 fontSize: fs(20),
@@ -443,30 +423,6 @@ function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
                             {formatPeso(effectivePrice)}
                         </Text>
 
-                        {!!pkg.promo_price_condition && (
-                            <View
-                                style={{
-                                    backgroundColor: colors.warning,
-                                    borderWidth: 1,
-                                    borderColor: "#fde68a",
-                                    borderRadius: s(radii.sm),
-                                    paddingHorizontal: s(spacing.sm),
-                                    paddingVertical: s(2),
-                                    marginTop: s(4),
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        fontSize: fs(11),
-                                        fontWeight: "600",
-                                        color: colors.warningText,
-                                    }}
-                                    allowFontScaling={false}
-                                >
-                                    {String(pkg.promo_price_condition)}
-                                </Text>
-                            </View>
-                        )}
                     </View>
                 </View>
             </View>

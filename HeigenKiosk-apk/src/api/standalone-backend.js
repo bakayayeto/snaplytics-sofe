@@ -1,4 +1,5 @@
 import { resolveCategoryImage } from "../constants/assets";
+import { effectivePackagePriceForClaim } from "../utils/loyaltyClaim";
 import {
     parseStringArrayField,
     normalizeIncludedPortraitsField,
@@ -21,6 +22,14 @@ const TABLES = {
     couponSent: "backend_couponsent",
     couponUsage: "backend_couponusage",
 };
+
+/** Same guard as HeigenKiosk HTTP client — hide archived / soft-deleted catalog rows. */
+export function isActiveCatalogPackage(p) {
+    if (!p || typeof p !== "object") return false;
+    if (p.deleted_at != null && p.deleted_at !== "") return false;
+    if (p.is_archived === true) return false;
+    return true;
+}
 
 function normalizeBaseUrl(url) {
     return String(url || "").trim().replace(/\/+$/, "");
@@ -248,7 +257,7 @@ async function fetchPackagesRows() {
         orderBy: "id.asc",
         filters: [["deleted_at", "is.null"]],
     });
-    return rows.map(normalizePackage);
+    return rows.map(normalizePackage).filter(isActiveCatalogPackage);
 }
 
 async function fetchAddonsRows() {
@@ -608,9 +617,9 @@ SELECT (json_build_object(
     const categoryRows = (raw.category_rows || []).map((r) =>
         hydratePoolerRow(c, r),
     );
-    const packages = (raw.package_rows || []).map((r) =>
-        normalizePackage(hydratePoolerRow(p, r)),
-    );
+    const packages = (raw.package_rows || [])
+        .map((r) => normalizePackage(hydratePoolerRow(p, r)))
+        .filter(isActiveCatalogPackage);
     const addons = (raw.addon_rows || []).map((r) =>
         normalizeAddon(hydratePoolerRow(a, r)),
     );
@@ -904,6 +913,97 @@ export function snapshotPopularAddons(snapshot, categoryName) {
     return { top_addon_ids: top };
 }
 
+function bookingPackageId(b) {
+    if (!b || typeof b !== "object") return null;
+    if (b.package_id != null) return Number(b.package_id);
+    if (b.package?.id != null) return Number(b.package.id);
+    if (b.package != null) return Number(b.package);
+    return null;
+}
+
+function round2(n) {
+    return Math.round(n * 100) / 100;
+}
+
+/**
+ * Approximates GET /recommendations/popular/ using cached bookings + catalog
+ * (matches HeigenKiosk when bookings array in snapshot is empty or sparse).
+ */
+export function buildClientPopularRecommendations(snapshot, k = 3) {
+    const packages = (snapshot?.packages || []).filter(isActiveCatalogPackage);
+    const addons = snapshot?.addons || [];
+    const bookings = snapshot?.bookings || [];
+    const pkgCounts = new Map();
+    bookings.forEach((b) => {
+        const pid = bookingPackageId(b);
+        if (pid == null) return;
+        pkgCounts.set(pid, (pkgCounts.get(pid) || 0) + 1);
+    });
+    const topPkgIds = [...pkgCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, k)
+        .map(([id]) => id);
+
+    const recommendations = topPkgIds
+        .map((pid) => {
+            const pkg = packages.find((p) => Number(p.id) === Number(pid));
+            if (!pkg) return null;
+            const cat = pkg.category;
+            const scopedAddons = addons.filter((a) => {
+                if (!a.applies_to) return true;
+                const applies = Array.isArray(a.applies_to)
+                    ? a.applies_to.join(",")
+                    : String(a.applies_to);
+                return (
+                    applies.toLowerCase().includes(String(cat || "").toLowerCase()) ||
+                    applies === "*"
+                );
+            });
+            const addonCounts = new Map();
+            bookings.forEach((b) => {
+                if (bookingPackageId(b) !== Number(pid)) return;
+                (b.addons || []).forEach((x) => {
+                    const aid = Number(x.addonId || x.id);
+                    if (!scopedAddons.some((s) => Number(s.id) === aid)) return;
+                    addonCounts.set(
+                        aid,
+                        (addonCounts.get(aid) || 0) + Number(x.quantity || 1),
+                    );
+                });
+            });
+            const topAddonIds = [...addonCounts.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([id]) => id);
+            const pickAddons =
+                topAddonIds.length > 0
+                    ? topAddonIds
+                          .map((id) => addons.find((a) => Number(a.id) === id))
+                          .filter(Boolean)
+                    : scopedAddons.slice(0, 2);
+            const basePrice = effectivePackagePriceForClaim(pkg);
+            const addonTotal = pickAddons.reduce(
+                (s, a) => s + Number(a.price || 0),
+                0,
+            );
+            return {
+                package: pkg,
+                addons: pickAddons,
+                base_price: basePrice,
+                total_price: round2(basePrice + addonTotal),
+                score: pkgCounts.get(pid) || 0,
+                source: "popularity",
+            };
+        })
+        .filter(Boolean);
+
+    return {
+        recommendations,
+        count: recommendations.length,
+        total_bookings: bookings.length,
+    };
+}
+
 export async function getCategories() {
     return fetchCategories();
 }
@@ -1136,16 +1236,29 @@ export async function submitBooking(payload, catalog = null) {
     });
 
     const bookingId = bookingRow?.id ?? bookingRow?.booking_id ?? null;
-    if (bookingId && Array.isArray(payload.addon_ids) && payload.addon_ids.length) {
-        for (const addonId of payload.addon_ids) {
-            const addon = addonMap.get(Number(addonId));
+    let addonLines = [];
+    if (Array.isArray(payload.addons_input) && payload.addons_input.length) {
+        addonLines = payload.addons_input.map((row) => {
+            const rawId = row.addonId ?? row.addon_id ?? row.id;
+            const q = parseInt(String(row.quantity ?? 1), 10);
+            const quantity = Number.isFinite(q) && q >= 1 ? Math.min(999, q) : 1;
+            return { addonId: rawId, quantity };
+        });
+    } else if (Array.isArray(payload.addon_ids) && payload.addon_ids.length) {
+        addonLines = payload.addon_ids.map((id) => ({ addonId: id, quantity: 1 }));
+    }
+    if (bookingId && addonLines.length) {
+        for (const line of addonLines) {
+            const addon = addonMap.get(Number(line.addonId));
             if (!addon) continue;
+            const qty = line.quantity || 1;
+            const unit = Number(addon.price || 0);
             await insertRow(TABLES.bookingAddons, {
                 booking: bookingId,
                 addon: addon.id,
-                addon_quantity: 1,
-                addon_price: Number(addon.price || 0),
-                total_addon_cost: Number(addon.price || 0),
+                addon_quantity: qty,
+                addon_price: unit,
+                total_addon_cost: unit * qty,
                 last_updated: new Date().toISOString(),
             });
         }
