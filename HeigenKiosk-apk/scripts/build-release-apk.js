@@ -68,6 +68,14 @@ function findJdk17Home() {
   return null;
 }
 
+/** Windows uses `Path`; Unix uses `PATH`. Prepend dir without dropping the rest. */
+function prependToPathEnv(env, dir) {
+  const sep = process.platform === "win32" ? ";" : ":";
+  const keys = Object.keys(env);
+  const pathKey = keys.find((k) => k.toLowerCase() === "path") || "PATH";
+  env[pathKey] = `${dir}${sep}${env[pathKey] || ""}`;
+}
+
 function envWithJdk17(baseEnv = process.env) {
   const jdk17 = findJdk17Home();
   if (!jdk17) {
@@ -81,8 +89,7 @@ function envWithJdk17(baseEnv = process.env) {
     process.exit(1);
   }
   const out = { ...baseEnv, JAVA_HOME: jdk17 };
-  const sep = process.platform === "win32" ? ";" : ":";
-  out.PATH = path.join(jdk17, "bin") + sep + (out.PATH || "");
+  prependToPathEnv(out, path.join(jdk17, "bin"));
   if (baseEnv.JAVA_HOME !== jdk17) {
     console.error(`Using JDK 17 for this step: ${jdk17}`);
   }
