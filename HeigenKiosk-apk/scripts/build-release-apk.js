@@ -169,7 +169,7 @@ if (fs.existsSync(envSrc)) {
   console.error("Copied .env into temp build tree.");
 } else {
   console.error(
-    "No .env in project root — build continues; set EXPO_PUBLIC_SUPABASE_* in .env for embedded config.",
+    "No .env in project root — build continues. For a physical device APK set EXPO_PUBLIC_API_BASE_URL or EXPO_PUBLIC_API_HOST in .env (same as HeigenKiosk).",
   );
 }
 
