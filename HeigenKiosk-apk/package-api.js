@@ -1,6 +1,6 @@
 // package-api.js  (Admin site — updated)
 // ─────────────────────────────────────────────────────────────────────────────
-// Admin category grid. Data comes from the Django REST API (same as HeigenKiosk shared_package_data.js).
+// Admin category grid. Data now comes from the standalone Supabase/PostgREST backend.
 // CRUD functions are wired but can be commented out if not yet needed.
 // ─────────────────────────────────────────────────────────────────────────────
 

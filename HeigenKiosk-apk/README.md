@@ -1,19 +1,20 @@
 # Heigen Studio Kiosk APK — React Native App
 
-Expo (React Native) kiosk booking app aligned with **HeigenKiosk**: same screens and **Django REST API** (`src/constants/api.js` + `src/api/client.js`), packaged as an Android APK.
+A standalone Expo (React Native) kiosk booking system for Heigen Studio that talks directly to Supabase PostgREST on the underlying PostgreSQL database.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-HeigenKiosk-apk/
+HeigenKiosk/
 ├── app/
 │   ├── index.js              ← Kiosk booking flow (customer-facing)
 │   └── admin.js              ← Staff booking queue (admin-facing)
 ├── src/
 │   ├── api/
-│   │   └── client.js         ← Django REST client (same contract as HeigenKiosk)
+│   │   ├── client.js         ← APK data layer (Supabase/PostgREST)
+│   │   └── standalone-backend.js ← shared Supabase helpers
 │   ├── constants/
 │   │   ├── api.js            ← Base URL + endpoint constants
 │   │   └── theme.js          ← Design tokens (colors, spacing, typography)
@@ -30,7 +31,7 @@ HeigenKiosk-apk/
 │       ├── BookingSummaryModal.js ← Review before submit
 │       ├── ConfirmationScreen.js  ← Success state (auto-resets in 4s)
 │       └── AdminBookingQueue.js   ← Staff queue: Pending → Ongoing → Done
-├── shared_package_data.js    ← Admin web helpers (Django REST, same as HeigenKiosk)
+├── shared_package_data.js    ← Admin web app data layer (same standalone backend)
 ├── package-api.js            ← Updated admin category page (with Refresh AI btn)
 ├── app.json
 ├── babel.config.js
@@ -46,7 +47,7 @@ HeigenKiosk-apk/
 - Node.js 18+ (Node.js 20 LTS recommended)
 - npm 9+
 - Expo via `npx expo ...` (no global install required)
-- Django **Snaplytics** backend running and reachable from the device/emulator (same API as **HeigenKiosk**)
+- Supabase project with PostgREST enabled and RLS policies configured
 
 Quick version check:
 
@@ -58,24 +59,19 @@ npm -v
 ### 1. Install dependencies
 
 ```bash
-cd HeigenKiosk-apk
+cd HeigenKiosk
 npm install
 ```
 
-### 2. Configure API base URL
+### 2. Configure Supabase
 
-Same env vars as **HeigenKiosk** (`src/constants/api.js`):
-
-- Optional **`HeigenKiosk-apk/.env`** (gitignored) with either:
-  - **`EXPO_PUBLIC_API_BASE_URL`** — full base including path, e.g. `http://192.168.1.50:8000/api`, or
-  - **`EXPO_PUBLIC_API_HOST`** — host only; port defaults to `8000` and path to `/api`.
-
-**Physical phone APK:** you must set **`EXPO_PUBLIC_API_BASE_URL`** (or host) to a URL the **phone can reach** (LAN IP or HTTPS of your deployed Django), **not** `localhost` / `10.0.2.2`.
+Copy `.env.example` to `.env` and fill in your Supabase URL and anon key.
 
 ### 3. Start the app
 
 ```bash
-cd HeigenKiosk-apk
+# Start Expo
+cd ../HeigenKiosk
 npx expo start
 ```
 
@@ -125,7 +121,7 @@ This means **as soon as a booking is completed, the next customer sees updated r
 
 ### Admin "Refresh AI" button
 
-The button in the admin queue header (`package-api.js`) calls `refreshRecommender()` in `shared_package_data.js`, which uses the Django API (same behavior as **HeigenKiosk**). If you later add a dedicated refresh endpoint, wire it in there:
+The button in the admin queue header (`package-api.js`) calls `refreshRecommender()` which refreshes live popularity data from the same Supabase-backed tables. If you later add a dedicated refresh function, wire it in here:
 
 ```python
 # endpoints/urls.py
@@ -136,15 +132,23 @@ Update `refreshRecommender()` in `shared_package_data.js` to hit that instead.
 
 ---
 
-## 🔌 Backend (Django REST)
+## 🔌 Standalone Data Layer
 
-The kiosk uses the same **Django REST** endpoints as **HeigenKiosk** (`/packages/`, `/addons/`, `/customers/`, `/bookings/`, `/recommendations/`, etc.). Run `python manage.py runserver` (or your deployment) and point the app at that base URL.
+The APK reads and writes directly to the Postgres tables exposed by Supabase PostgREST:
+
+- `backend_category`
+- `backend_package`
+- `backend_addon`
+- `backend_customer`
+- `backend_booking`
+- `backend_bookingaddon`
+- `backend_coupon`
+- `backend_couponsent`
+- `backend_couponusage`
+
+The kiosk keeps the same flow and UI behavior. Recommendations, popular packages, booking queue, customer lookup, and coupon validation are computed from the same live data in the APK.
 
 ---
-
-## 🧪 JDBC pooler POC (optional)
-
-`app/pooler-poc` + native Android module remain for experiments; the main kiosk flow does **not** use them.
 
 ## 🎨 Design System
 
@@ -165,7 +169,7 @@ The app mirrors the web kiosk's visual design:
 - Node.js 18+ (Node.js 20 LTS recommended)
 - npm 9+
 - Expo CLI via `npx expo ...`
-- Django API reachable from the machine that runs Expo or builds the APK (`EXPO_PUBLIC_API_*` in `.env` when needed)
+- Supabase project with the anon key configured for the APK build
 
 ### Project dependencies
 

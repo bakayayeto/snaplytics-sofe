@@ -13,14 +13,12 @@ import { LoadingScreen, ErrorScreen, Button } from "../components/ui";
 import { colors, spacing, radii, shadow } from "../constants/theme";
 import { useScale } from "../hooks/useScale";
 import { resolvePackageImage } from "../constants/assets";
-import { effectivePackagePriceForClaim } from "../utils/loyaltyClaim";
+import {
+    parseStringArrayField,
+    formatPortraitIncludedLine,
+} from "../utils/packageFieldParse";
 
-export default function PackageScreen({
-    category,
-    onSelectPackage,
-    onBack,
-    kioskSnapshot = null,
-}) {
+export default function PackageScreen({ category, onSelectPackage, onBack, kioskSnapshot = null }) {
     const { s, fs, isTablet, W } = useScale();
     const [scrollY, setScrollY] = useState(0);
     const [contentHeight, setContentHeight] = useState(0);
@@ -83,6 +81,7 @@ export default function PackageScreen({
     const canScrollDown = maxScroll > s(8);
     const isNearBottom = scrollY >= maxScroll - s(20);
     const showScrollHint = canScrollDown && !isNearBottom;
+
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <ScrollView
@@ -194,12 +193,7 @@ export default function PackageScreen({
         </View>
     );
 }
-function toStringArray(val) {
-    if (!val) return [];
-    if (Array.isArray(val)) return val.map(String);
-    if (typeof val === "object") return Object.values(val).map(String);
-    return [String(val)];
-}
+
 /** Single currency label everywhere (avoid mixing "PHP" in artwork vs ₱ in UI). */
 function formatPeso(amount) {
     const n = Number(amount);
@@ -235,21 +229,19 @@ function IncludeRow({ text, color, s, fs }) {
         </View>
     );
 }
+
 // Same image height + bar layout for every card so side-by-side rows align.
 // Authoritative price on the teal bar (API) so it always matches the body (fixes baked "PHP" on artwork).
-function PackageCard({
-    pkg,
-    onPress,
-    popular = false,
-    s,
-    fs,
-    width,
-}) {
+function PackageCard({ pkg, onPress, popular = false, s, fs, width }) {
     const borderColor = popular ? colors.primary : colors.border;
     const bgColor = colors.card;
-    const effectivePrice = effectivePackagePriceForClaim(pkg);
-    const inclusions = toStringArray(pkg.inclusions);
-    const freebies = toStringArray(pkg.freebies);
+    const effectivePrice =
+        pkg.promo_price != null && Number(pkg.promo_price) > 0
+            ? pkg.promo_price
+            : pkg.price;
+    const inclusions = parseStringArrayField(pkg.inclusions) ?? [];
+    const freebies = parseStringArrayField(pkg.freebies) ?? [];
+    const portraitLine = formatPortraitIncludedLine(pkg.included_portraits);
     const packageImage = resolvePackageImage(pkg);
     const imageHeight = s(168);
     const barPadH = s(spacing.lg);
@@ -381,9 +373,9 @@ function PackageCard({
                             paddingTop: 0,
                         }}
                     >
-                        {pkg.included_portraits != null && (
+                        {portraitLine != null && (
                             <IncludeRow
-                                text={`${pkg.included_portraits} portrait(s) included`}
+                                text={portraitLine}
                                 s={s}
                                 fs={fs}
                             />
@@ -422,7 +414,6 @@ function PackageCard({
                         >
                             {formatPeso(effectivePrice)}
                         </Text>
-
                     </View>
                 </View>
             </View>

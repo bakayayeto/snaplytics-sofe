@@ -12,15 +12,12 @@ import {
 import { LoadingScreen, ErrorScreen, Button } from "../components/ui";
 import { colors, spacing, radii, shadow } from "../constants/theme";
 import { useScale } from "../hooks/useScale";
-import { effectivePackagePriceForClaim } from "../utils/loyaltyClaim";
-import { addonQty, sumAddonLineSubtotals, totalAddonUnits } from "../utils/addonLines";
 
 export default function AddonsScreen({
     category,
     selectedPackage,
     selectedAddons,
-    onIncrementAddon,
-    onDecrementAddon,
+    onToggleAddon,
     onNext,
     onBack,
     kioskSnapshot = null,
@@ -63,9 +60,17 @@ export default function AddonsScreen({
     const displayOther =
         popularAddons.length > 0 ? otherAddons : (addons?.slice(2) ?? []);
 
-    const pkgPrice = effectivePackagePriceForClaim(selectedPackage);
-    const addonsTotal = sumAddonLineSubtotals(selectedAddons);
-    const addonUnits = totalAddonUnits(selectedAddons);
+    const pkgPrice = Number(
+        selectedPackage?.promo_price
+            ? selectedPackage.promo_price
+            : selectedPackage?.price
+              ? selectedPackage.price
+              : 0,
+    );
+    const addonsTotal = selectedAddons.reduce(
+        (sum, a) => sum + Number(a.price),
+        0,
+    );
     const grandTotal = pkgPrice + addonsTotal;
 
     const hPad = s(spacing.xl);
@@ -89,23 +94,20 @@ export default function AddonsScreen({
                         : { gap: s(spacing.sm) }
                 }
             >
-                {list.map((addon) => {
-                    const line = selectedAddons.find((a) => a.id === addon.id);
-                    const qty = line ? addonQty(line) : 0;
-                    return (
-                        <AddonCard
-                            key={addon.id}
-                            addon={addon}
-                            isPopular={isPopular}
-                            quantity={qty}
-                            onIncrement={() => onIncrementAddon(addon)}
-                            onDecrement={() => onDecrementAddon(addon)}
-                            s={s}
-                            fs={fs}
-                            width={cardWidth}
-                        />
-                    );
-                })}
+                {list.map((addon) => (
+                    <AddonCard
+                        key={addon.id}
+                        addon={addon}
+                        isPopular={isPopular}
+                        isSelected={selectedAddons.some(
+                            (a) => a.id === addon.id,
+                        )}
+                        onToggle={() => onToggleAddon(addon)}
+                        s={s}
+                        fs={fs}
+                        width={cardWidth}
+                    />
+                ))}
             </View>
         );
     }
@@ -169,7 +171,7 @@ export default function AddonsScreen({
                         }}
                         allowFontScaling={false}
                     >
-                        Optional add-ons — tap + to add, − to remove
+                        Optional add-ons — tap to include with your package
                     </Text>
                 </View>
 
@@ -342,7 +344,7 @@ export default function AddonsScreen({
                                     allowFontScaling={false}
                                 >
                                     +₱{addonsTotal.toLocaleString()} (
-                                    {addonUnits})
+                                    {selectedAddons.length})
                                 </Text>
                             </View>
                         )}
@@ -451,7 +453,7 @@ export default function AddonsScreen({
                                         }}
                                         allowFontScaling={false}
                                     >
-                                        {addonUnits} item(s)
+                                        {selectedAddons.length} item(s)
                                     </Text>
                                     <Text
                                         style={{
@@ -508,42 +510,34 @@ export default function AddonsScreen({
 }
 
 // Popular: warm amber border + cream fill. Other: white + grey border. No badges, no containers.
-function AddonCard({
-    addon,
-    isPopular,
-    quantity,
-    onIncrement,
-    onDecrement,
-    s,
-    fs,
-    width,
-}) {
-    const hasQty = quantity > 0;
-    const borderColor = hasQty
+function AddonCard({ addon, isPopular, isSelected, onToggle, s, fs, width }) {
+    const borderColor = isSelected
         ? colors.primary
         : isPopular
           ? colors.borderStrong
           : colors.border;
 
     return (
-        <View
+        <TouchableOpacity
+            onPress={onToggle}
+            activeOpacity={0.85}
             style={{
                 borderRadius: s(radii.lg),
-                borderWidth: hasQty ? 2 : 1.5,
+                borderWidth: isSelected ? 2 : 1.5,
                 borderColor: borderColor,
-                backgroundColor: hasQty
+                backgroundColor: isSelected
                     ? colors.accentLight
                     : isPopular
                       ? colors.backgroundElevated
                       : colors.card,
                 padding: s(spacing.md),
-                ...(hasQty ? shadow.accent : shadow.sm),
+                ...(isSelected ? shadow.accent : shadow.sm),
                 position: "relative",
                 width: width || undefined,
             }}
         >
             {/* Popular star at top center */}
-            {isPopular && !hasQty && (
+            {isPopular && !isSelected && (
                 <View
                     style={{
                         position: "absolute",
@@ -578,16 +572,16 @@ function AddonCard({
                         flexShrink: 0,
                         borderWidth: 2,
                         borderColor: borderColor,
-                        backgroundColor: hasQty ? colors.accent : "#ffffff",
+                        backgroundColor: isSelected ? colors.accent : "#ffffff",
                         alignItems: "center",
                         justifyContent: "center",
                     }}
                 >
                     <Icon
-                        name={hasQty ? "checkmark" : "add"}
+                        name={isSelected ? "checkmark" : "add"}
                         size={s(13)}
                         color={
-                            hasQty
+                            isSelected
                                 ? "#fff"
                                 : isPopular
                                   ? colors.accent
@@ -600,7 +594,7 @@ function AddonCard({
                         style={{
                             fontSize: fs(13),
                             fontWeight: "600",
-                            color: hasQty
+                            color: isSelected
                                 ? colors.accent
                                 : colors.foreground,
                         }}
@@ -631,83 +625,8 @@ function AddonCard({
                     allowFontScaling={false}
                 >
                     +₱{Number(addon.price).toLocaleString()}
-                    {hasQty && quantity > 1 ? (
-                        <Text
-                            style={{
-                                fontSize: fs(11),
-                                color: colors.mutedForeground,
-                                fontWeight: "600",
-                            }}
-                            allowFontScaling={false}
-                        >
-                            {" "}
-                            ×{quantity}
-                        </Text>
-                    ) : null}
                 </Text>
             </View>
-            <View
-                style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                    marginTop: s(spacing.sm),
-                    gap: s(spacing.sm),
-                }}
-            >
-                {hasQty ? (
-                    <TouchableOpacity
-                        onPress={onDecrement}
-                        activeOpacity={0.85}
-                        style={{
-                            width: s(36),
-                            height: s(36),
-                            borderRadius: s(18),
-                            borderWidth: 2,
-                            borderColor: colors.primary,
-                            backgroundColor: colors.backgroundElevated,
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <Icon
-                            name="remove"
-                            size={s(16)}
-                            color={colors.primary}
-                        />
-                    </TouchableOpacity>
-                ) : null}
-                {hasQty ? (
-                    <Text
-                        style={{
-                            fontSize: fs(15),
-                            fontWeight: "800",
-                            color: colors.foreground,
-                            minWidth: s(28),
-                            textAlign: "center",
-                        }}
-                        allowFontScaling={false}
-                    >
-                        {quantity}
-                    </Text>
-                ) : null}
-                <TouchableOpacity
-                    onPress={onIncrement}
-                    activeOpacity={0.85}
-                    style={{
-                        width: s(36),
-                        height: s(36),
-                        borderRadius: s(18),
-                        borderWidth: 2,
-                        borderColor: colors.accent,
-                        backgroundColor: colors.accent,
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                >
-                    <Icon name="add" size={s(16)} color="#fff" />
-                </TouchableOpacity>
-            </View>
-        </View>
+        </TouchableOpacity>
     );
 }

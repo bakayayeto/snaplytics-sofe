@@ -6,11 +6,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 import Icon from '../components/Icon';
 import { useApi, useMutation } from '../hooks/useApi';
-import { fetchBookingsByStatus, updateBookingStatus } from '../api/client';
+import { fetchBookingsByStatus, updateBookingStatus, fetchPopularRecommendations } from '../api/client';
 import { Button, Divider, LoadingScreen, ErrorScreen } from '../components/ui';
-import { API_BASE_URL, BOOKING_STATUS } from '../constants/api';
+import { BOOKING_STATUS } from '../constants/api';
 import { colors, spacing, radii, typography, shadow } from '../constants/theme';
 
 const STATUS_CONFIG = {
@@ -26,6 +27,7 @@ const STATUS_CONFIG = {
 };
 
 export default function AdminBookingQueue() {
+  const router = useRouter();
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [refreshing, setRefreshing]           = useState(false);
   const [recommenderMsg, setRecommenderMsg]   = useState(null);
@@ -71,11 +73,11 @@ export default function AdminBookingQueue() {
     setRefreshingRec(true);
     setRecommenderMsg(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/recommendations/1/?k=3`);
+      const res = await fetchPopularRecommendations(3);
       setRecommenderMsg({
-        type: res.ok ? 'success' : 'warn',
-        text: res.ok
-          ? 'Recommender refreshed! Popular choices are now up to date.'
+        type: res?.recommendations?.length ? 'success' : 'warn',
+        text: res?.recommendations?.length
+          ? 'Recommender refreshed from live booking data.'
           : 'Recommender updates automatically as bookings are added.',
       });
     } catch {
@@ -106,6 +108,9 @@ export default function AdminBookingQueue() {
           <Text style={styles.headerSub}>{pending.length} pending · {ongoing.length} ongoing</Text>
         </View>
         <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => router.push('/pooler-poc')} style={styles.poolerBtn}>
+            <Text style={styles.poolerBtnText}>JDBC POC</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleRefreshRecommender} disabled={refreshingRec} style={styles.recBtn}>
             <Icon name={refreshingRec ? 'sync' : 'sparkles-outline'} size={16} color={colors.accent} />
             <Text style={styles.recBtnText}>Refresh AI</Text>
@@ -304,6 +309,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
   },
   recBtnText: { ...typography.xs, color: colors.primary, fontWeight: '700' },
+  poolerBtn: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.error,
+    backgroundColor: colors.errorBg,
+  },
+  poolerBtnText: { ...typography.xs, color: colors.error, fontWeight: '700' },
   reloadBtn: {
     width: 40, height: 40, borderRadius: 20,
     backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center',

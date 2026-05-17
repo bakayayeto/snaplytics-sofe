@@ -19,11 +19,10 @@ import CustomerFormModal from "./CustomerFormModal";
 import BookingSummaryModal from "./BookingSummaryModal";
 
 import {
-    findCustomerByEmail,
-    fetchPopularRecommendations,
-    fetchRecommendations,
     loadKioskBootstrap,
-    buildClientPopularRecommendations,
+    snapshotFindCustomerByEmail,
+    snapshotFetchRecommendations,
+    snapshotFetchPopularRecommendations,
     submitBooking,
 } from "../api/client";
 import {
@@ -35,8 +34,6 @@ import {
 } from "../constants/theme";
 import { useScale } from "../hooks/useScale";
 import { LoadingScreen, ErrorScreen } from "../components/ui";
-import { effectivePackagePriceForClaim } from "../utils/loyaltyClaim";
-import { addonQty, sumAddonLineSubtotals } from "../utils/addonLines";
 
 // Three main-flow steps only; final confirmation happens in BookingSummaryModal,
 // then ConfirmationScreen (step 3) runs without the header.
@@ -100,11 +97,6 @@ export default function KioskApp() {
     );
     function reset() {
         setState(createInitialState());
-        loadKioskBootstrap({ force: true })
-            .then((snapshot) => {
-                setBootstrap({ status: "ready", snapshot, error: null });
-            })
-            .catch(() => {});
     }
 
     function openExitPage() {
@@ -125,11 +117,6 @@ export default function KioskApp() {
             ...createInitialState(),
             formResetToken: state.formResetToken + 1,
         });
-        loadKioskBootstrap({ force: true })
-            .then((snapshot) => {
-                setBootstrap({ status: "ready", snapshot, error: null });
-            })
-            .catch(() => {});
     }
 
     function handleSelectCategory(cat) {
@@ -138,38 +125,15 @@ export default function KioskApp() {
     function handleSelectPackage(pkg) {
         update({ selectedPackage: pkg, selectedAddons: [], step: 2 });
     }
-    function handleIncrementAddon(addon) {
+    function handleToggleAddon(addon) {
         setState((prev) => {
-            const idx = prev.selectedAddons.findIndex((a) => a.id === addon.id);
-            if (idx === -1) {
-                return {
-                    ...prev,
-                    selectedAddons: [...prev.selectedAddons, { ...addon, quantity: 1 }],
-                };
-            }
-            const next = [...prev.selectedAddons];
-            const line = next[idx];
-            next[idx] = {
-                ...line,
-                quantity: Math.min(999, addonQty(line) + 1),
+            const already = prev.selectedAddons.some((a) => a.id === addon.id);
+            return {
+                ...prev,
+                selectedAddons: already
+                    ? prev.selectedAddons.filter((a) => a.id !== addon.id)
+                    : [...prev.selectedAddons, addon],
             };
-            return { ...prev, selectedAddons: next };
-        });
-    }
-    function handleDecrementAddon(addon) {
-        setState((prev) => {
-            const idx = prev.selectedAddons.findIndex((a) => a.id === addon.id);
-            if (idx === -1) return prev;
-            const q = addonQty(prev.selectedAddons[idx]);
-            if (q <= 1) {
-                return {
-                    ...prev,
-                    selectedAddons: prev.selectedAddons.filter((a) => a.id !== addon.id),
-                };
-            }
-            const next = [...prev.selectedAddons];
-            next[idx] = { ...next[idx], quantity: q - 1 };
-            return { ...prev, selectedAddons: next };
         });
     }
     function handleBackToCategory() {
@@ -203,45 +167,29 @@ export default function KioskApp() {
         let recommendationData = null;
         let customerId = null;
         try {
-            const existingCustomer = await findCustomerByEmail(info.email);
+            const existingCustomer = snapshotFindCustomerByEmail(snap, info.email);
             if (existingCustomer) {
                 customerId = existingCustomer.id || existingCustomer.customer_id;
-                recommendationData = await fetchRecommendations(
+                recommendationData = snapshotFetchRecommendations(
+                    snap,
                     customerId,
-                    info.preferredDate || null,
                     3,
                 );
             } else {
-                recommendationData = buildClientPopularRecommendations(snap, 3);
-                if (!recommendationData?.recommendations?.length) {
-                    try {
-                        recommendationData = await fetchPopularRecommendations(3);
-                    } catch (_) {
-                        recommendationData = {
-                            recommendations: [],
-                            total_bookings: snap?.bookings?.length ?? 0,
-                        };
-                    }
-                }
+                recommendationData = snapshotFetchPopularRecommendations(snap, 3);
             }
         } catch (_) {
             try {
-                recommendationData = buildClientPopularRecommendations(
-                    bootstrap.snapshot,
-                    3,
-                );
-                if (!recommendationData?.recommendations?.length) {
-                    recommendationData = await fetchPopularRecommendations(3);
-                }
+                recommendationData = snapshotFetchPopularRecommendations(snap, 3);
             } catch (__) {
-                recommendationData = { recommendations: [], total_bookings: 0 };
+                recommendationData = { recommendations: [] };
             }
         }
 
         update({
             customerId,
             recommendationData,
-            showCustomerForm: false,
+                    showCustomerForm: false,
             showSummary: state.requestSummaryAfterCustomerForm,
             requestSummaryAfterCustomerForm: false,
             loadingCustomerCheck: false,
@@ -260,12 +208,7 @@ export default function KioskApp() {
                 name: pkg.category || "Recommended",
             },
             selectedPackage: pkg,
-            selectedAddons: Array.isArray(rec.addons)
-                ? rec.addons.map((a) => ({
-                      ...a,
-                      quantity: addonQty({ ...a, quantity: a.quantity ?? 1 }),
-                  }))
-                : [],
+            selectedAddons: Array.isArray(rec.addons) ? rec.addons : [],
             showSummary: true,
         });
     }
@@ -274,24 +217,24 @@ export default function KioskApp() {
         update({ submitting: true });
         try {
             const totalAmount = calcTotal();
-            await submitBooking({
-                customer: {
-                    full_name: state.customerInfo.fullName,
-                    email: state.customerInfo.email,
-                    contact_number: state.customerInfo.contactNumber,
-                    consent_given: state.customerInfo.consentGiven ?? true,
+            await submitBooking(
+                {
+                    customer: {
+                        full_name: state.customerInfo.fullName,
+                        email: state.customerInfo.email,
+                        contact_number: state.customerInfo.contactNumber,
+                        consent_given: state.customerInfo.consentGiven ?? true,
+                    },
+                    category_id:
+                        state.selectedCategory?.id ?? state.selectedCategory?.name,
+                    package_id: state.selectedPackage?.id,
+                    addon_ids: state.selectedAddons.map((a) => a.id),
+                    preferred_date: state.customerInfo.preferredDate,
+                    total_amount: totalAmount,
+                    customer_id: state.customerId,
                 },
-                category_id:
-                    state.selectedCategory?.id ?? state.selectedCategory?.name,
-                package_id: state.selectedPackage?.id,
-                addons_input: state.selectedAddons.map((a) => ({
-                    addonId: a.id,
-                    quantity: addonQty(a),
-                })),
-                preferred_date: state.customerInfo.preferredDate,
-                total_amount: totalAmount,
-                customer_id: state.customerId,
-            });
+                bootstrap.snapshot,
+            );
             update({
                 submitting: false,
                 showSummary: false,
@@ -309,8 +252,17 @@ export default function KioskApp() {
     }
 
     function calcTotal() {
-        const base = effectivePackagePriceForClaim(state.selectedPackage);
-        return base + sumAddonLineSubtotals(state.selectedAddons);
+        const base = Number(
+            state.selectedPackage?.promo_price
+                ? state.selectedPackage.promo_price
+                : state.selectedPackage?.price
+                  ? state.selectedPackage.price
+                  : 0,
+        );
+        return (
+            base +
+            state.selectedAddons.reduce((sum, a) => sum + Number(a.price), 0)
+        );
     }
 
     if (bootstrap.status === "loading") {
@@ -339,7 +291,6 @@ export default function KioskApp() {
     }
 
     const kioskSnapshot = bootstrap.snapshot;
-
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
             <StatusBar style="dark" />
@@ -772,8 +723,7 @@ export default function KioskApp() {
                         category={state.selectedCategory}
                         selectedPackage={state.selectedPackage}
                         selectedAddons={state.selectedAddons}
-                        onIncrementAddon={handleIncrementAddon}
-                        onDecrementAddon={handleDecrementAddon}
+                        onToggleAddon={handleToggleAddon}
                         onNext={handleProceedToBookNow}
                         onBack={handleBackToPackages}
                         kioskSnapshot={kioskSnapshot}
@@ -791,7 +741,10 @@ export default function KioskApp() {
                 onClose={() => update({ showCustomerForm: false })}
                 onSubmit={handleCustomerFormSubmit}
                 onCheckEmail={async (email) => {
-                    const customer = await findCustomerByEmail(email);
+                    const customer = snapshotFindCustomerByEmail(
+                        kioskSnapshot,
+                        email,
+                    );
                     return { found: !!customer, customer: customer || null };
                 }}
                 loading={state.loadingCustomerCheck}
