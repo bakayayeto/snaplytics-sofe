@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.heigenstudiokiosk"
+    namespace "com.heigenstudio.kiosk"
     defaultConfig {
-        applicationId "com.heigenstudiokiosk"
+        applicationId "com.heigenstudio.kiosk"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

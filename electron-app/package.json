@@ -16,12 +16,12 @@
   },
   "build": {
     "appId": "com.heigenstudio.admin",
-    "productName": "Heigen Admin",
+    "productName": "Heigen Studio",
     "copyright": "Copyright Heigen Studio",
     "directories": {
       "output": "release"
     },
-    "icon": "assets/splash-heigen.png",
+    "icon": "release/.icon-ico/icon.ico",
     "files": [
       "**/*",
       "!release/**",

@@ -35,10 +35,11 @@ function getDefaultHost() {
 const envBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 const envHost = process.env.EXPO_PUBLIC_API_HOST;
 const envPort = process.env.EXPO_PUBLIC_API_PORT || DEFAULT_API_PORT;
+const DEFAULT_RELEASE_HOST = '127.0.0.1';
 
 const computedBaseUrl = envBaseUrl
     ? normalizeBaseUrl(envBaseUrl)
-    : normalizeBaseUrl(`http://${envHost || getExpoHost() || getDefaultHost()}:${envPort}${DEFAULT_API_PATH}`);
+    : normalizeBaseUrl(`http://${envHost || getExpoHost() || DEFAULT_RELEASE_HOST}:${envPort}${DEFAULT_API_PATH}`);
 
 export const API_BASE_URL = computedBaseUrl;
 
