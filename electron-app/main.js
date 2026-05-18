@@ -1,6 +1,13 @@
 const { app, BrowserWindow } = require("electron");
+const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
+
+/** Window / packaged-app branding (same asset as splash + electron-builder icon). */
+const APP_ICON_PATH = path.join(__dirname, "assets", "splash-heigen.png");
+function windowIconOptions() {
+    return fs.existsSync(APP_ICON_PATH) ? { icon: APP_ICON_PATH } : {};
+}
 
 /** Repo root that contains `Snaplytics/` and `.env` (defaults to parent of this app). */
 function getMonorepoRoot() {
@@ -95,6 +102,7 @@ function stopDjango() {
 function createSplashWindow() {
     splashShownAt = Date.now();
     splashWindow = new BrowserWindow({
+        ...windowIconOptions(),
         width: 580,
         height: 380,
         frame: false,
@@ -140,6 +148,7 @@ function closeSplashAndShowMain() {
 function createWindow() {
     splashRevealScheduled = false;
     mainWindow = new BrowserWindow({
+        ...windowIconOptions(),
         ...MAIN_WINDOW_BOUNDS,
         show: false,
         webPreferences: MAIN_WINDOW_WEB_PREFERENCES,
