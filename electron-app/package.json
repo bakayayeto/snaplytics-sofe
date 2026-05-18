@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "desktop:install-menu": "bash scripts/install-linux-menu.sh"
   },
   "devDependencies": {
     "electron": "^40.2.1"
