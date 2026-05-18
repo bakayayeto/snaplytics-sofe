@@ -58,6 +58,8 @@ Build from `electron-app` after `npm install`:
 | `npm run dist:linux` | **AppImage** (x64). |
 | `npm run dist:mac` | **DMG** (needs macOS). |
 
+`dist:*` scripts run **`node scripts/electron-dist.cjs`** (sets `CSC_IDENTITY_AUTO_DISCOVERY=false` for unsigned builds) so **Windows** does not need the `cross-env` CLI.
+
 Installed layout: `Snaplytics/` is copied next to `app.asar` under `resources/` so Django can start without a separate repo checkout.
 
 **Still required on the machine:** **Python 3.11+** on `PATH` (same as dev). After install, open a terminal as Administrator and install Python deps once, for example:
