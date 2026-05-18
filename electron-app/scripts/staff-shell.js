@@ -19,9 +19,6 @@ function staffShellNav(page) {
     if (!f) return;
     var clean = (page || "").replace(/^\.\//, "");
     if (!clean) return;
-    if (clean.split("?")[0] === "coupons.html") {
-        clean = "dashboard.html";
-    }
     var url =
         clean.indexOf("?") >= 0 ? clean + "&embed=1" : clean + "?embed=1";
     f.src = url;
@@ -454,9 +451,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     var q = new URLSearchParams(window.location.search).get("page");
-    if (q && q.split("?")[0] === "coupons.html") {
-        staffShellNav("dashboard.html");
-    } else if (q === "action-logs.html" && !allowActionLogs) {
+    if (q === "action-logs.html" && !allowActionLogs) {
         staffShellNav("dashboard.html");
     } else if (q === "recycle-bin.html" && !allowRecycleBin) {
         staffShellNav("dashboard.html");
