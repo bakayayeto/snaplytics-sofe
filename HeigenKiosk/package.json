@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start --port 8090",
-    "android": "expo start --android --port 8090",
-    "ios": "expo start --ios --port 8090",
-    "web": "expo start --web --port 8090",
+    "start": "expo start --host lan --port 8090",
+    "android": "expo start --host lan --android --port 8090",
+    "ios": "expo start --host lan --ios --port 8090",
+    "web": "expo start --host lan --web --port 8090",
     "web:build": "expo export -p web",
     "web:serve": "npx expo export -p web && npx serve dist --single"
   },
