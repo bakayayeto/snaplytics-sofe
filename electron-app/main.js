@@ -5,8 +5,11 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 let djangoProcess;
 let mainWindow;
+let splashWindow;
 let djangoReady = false;
 const DJANGO_READY_TIMEOUT_MS = 2000;
+/** Keep splash visible at least this long so the intro animation reads. */
+const SPLASH_MIN_VISIBLE_MS = 900;
 const DJANGO_READY_MARKERS = [
     "Starting development server",
     "Watching for file changes",
@@ -23,6 +26,8 @@ const MAIN_WINDOW_WEB_PREFERENCES = {
     autoplayPolicy: "no-user-gesture-required",
 };
 const PYTHON_EXECUTABLE = process.env.PYTHON_EXECUTABLE || "python";
+
+let splashShownAt = 0;
 
 // Used to avoid an arbitrary startup delay; resolved once Django reports it's ready.
 let resolveDjangoReady;
@@ -73,17 +78,75 @@ function stopDjango() {
     }
 }
 
+function createSplashWindow() {
+    splashShownAt = Date.now();
+    splashWindow = new BrowserWindow({
+        width: 580,
+        height: 380,
+        frame: false,
+        resizable: false,
+        movable: false,
+        minimizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        backgroundColor: "#608291",
+        alwaysOnTop: true,
+        show: true,
+        center: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+        },
+    });
+    splashWindow.loadFile(path.join(__dirname, "splash.html"));
+    splashWindow.on("closed", () => {
+        splashWindow = null;
+    });
+}
+
+let splashRevealScheduled = false;
+
+function closeSplashAndShowMain() {
+    if (splashRevealScheduled) return;
+    splashRevealScheduled = true;
+    const elapsed = Date.now() - splashShownAt;
+    const pad = Math.max(0, SPLASH_MIN_VISIBLE_MS - elapsed);
+    setTimeout(() => {
+        if (splashWindow && !splashWindow.isDestroyed()) {
+            splashWindow.close();
+        }
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.show();
+            mainWindow.focus();
+            mainWindow.webContents.openDevTools(); // Remove in production
+        }
+    }, pad);
+}
+
 function createWindow() {
+    splashRevealScheduled = false;
     mainWindow = new BrowserWindow({
         ...MAIN_WINDOW_BOUNDS,
+        show: false,
         webPreferences: MAIN_WINDOW_WEB_PREFERENCES,
     });
 
-    mainWindow.loadFile("index.html");
-    mainWindow.webContents.openDevTools(); // Remove in production
+    mainWindow.loadFile(path.join(__dirname, "index.html"));
+
+    const finishSplash = () => closeSplashAndShowMain();
+    mainWindow.webContents.once("did-finish-load", finishSplash);
+    mainWindow.webContents.once("did-fail-load", finishSplash);
+
+    // If anything goes wrong, never trap the user on splash forever.
+    setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+            finishSplash();
+        }
+    }, 25000);
 }
 
 app.whenReady().then(() => {
+    createSplashWindow();
     startDjango();
 
     // Wait for Django to be ready, but keep the existing max startup time behavior.
@@ -104,4 +167,3 @@ app.on("window-all-closed", () => {
 app.on("before-quit", () => {
     stopDjango();
 });
-
