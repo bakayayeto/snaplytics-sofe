@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f9fafb"
+      "backgroundColor": "#4F6E79"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,8 +20,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#f9fafb"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#4F6E79"
       },
       "package": "com.heigenstudio.kiosk.apk"
     },
