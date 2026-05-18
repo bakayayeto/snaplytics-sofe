@@ -1,13 +1,94 @@
 {
   "name": "heigen-admin",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Heigen Studio staff admin (Electron)",
+  "author": "Heigen Studio",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "desktop:install-menu": "bash scripts/install-linux-menu.sh"
+    "desktop:install-menu": "bash scripts/install-linux-menu.sh",
+    "dist": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "dist:dir": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
+    "dist:win": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win",
+    "dist:win-cross": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win portable zip",
+    "dist:linux": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --linux",
+    "dist:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.heigenstudio.admin",
+    "productName": "Heigen Admin",
+    "copyright": "Copyright Heigen Studio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "**/*",
+      "!release/**",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "../Snaplytics",
+        "to": "Snaplytics",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/*.pyo",
+          "!.git/**",
+          "!**/venv/**",
+          "!**/.venv/**"
+        ]
+      }
+    ],
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "allowElevation": true
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office",
+      "maintainer": "Heigen Studio"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.business"
+    }
   },
   "devDependencies": {
-    "electron": "^40.2.1"
+    "cross-env": "^10.1.0",
+    "electron": "^40.2.1",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
     "dotenv": "^17.2.4"

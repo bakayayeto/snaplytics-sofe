@@ -47,6 +47,30 @@ Requires **Node.js** and **npm** on your PATH (same as `npm start`).
 
 The launch scripts set `HEIGEN_MONOREPO_ROOT` to the parent folder of `electron-app` so Django can find `Snaplytics/`. Override with env `HEIGEN_MONOREPO_ROOT` (or legacy `HEIGEN_REPO_ROOT`) if your layout differs.
 
+## Packaged `.exe` / installers (electron-builder)
+
+Build from `electron-app` after `npm install`:
+
+| Command | Output (under `electron-app/release/`) |
+|---------|----------------------------------------|
+| `npm run dist:win` | **NSIS** setup (e.g. `Heigen Admin Setup <version>.exe`), **portable** exe (e.g. `Heigen Admin <version>.exe`), and a **zip** archive. Use a **Windows** machine, or Linux with **Wine** (NSIS packaging calls Wine off Windows). |
+| `npm run dist:win-cross` | **Portable** exe + **zip** only — use from Linux/macOS CI **without Wine**. Unzip the zip if you prefer a folder layout. |
+| `npm run dist:linux` | **AppImage** (x64). |
+| `npm run dist:mac` | **DMG** (needs macOS). |
+
+Installed layout: `Snaplytics/` is copied next to `app.asar` under `resources/` so Django can start without a separate repo checkout.
+
+**Still required on the machine:** **Python 3.11+** on `PATH` (same as dev). After install, open a terminal as Administrator and install Python deps once, for example:
+
+```text
+cd "%ProgramFiles%\Heigen Admin\resources\Snaplytics"
+python -m pip install -r requirements.txt
+```
+
+(Adjust the folder if you changed the install directory; portable build uses the folder next to `Heigen Admin.exe` → `resources\Snaplytics`.)
+
+Optional: copy a `.env` next to `resources` (same folder that contains `Snaplytics`) or set `HEIGEN_MONOREPO_ROOT` if you relocate the backend.
+
 ## Notes
 
 - Electron starts Django from `Snaplytics/manage.py` on launch (see `main.js`).

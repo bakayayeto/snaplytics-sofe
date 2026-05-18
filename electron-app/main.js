@@ -8,6 +8,10 @@ function getMonorepoRoot() {
         process.env.HEIGEN_MONOREPO_ROOT || process.env.HEIGEN_REPO_ROOT || "";
     const t = String(raw).trim();
     if (t) return path.resolve(t);
+    // Packaged app: Snaplytics is shipped under process.resourcesPath (see electron-builder extraResources).
+    if (app.isPackaged) {
+        return path.resolve(process.resourcesPath);
+    }
     return path.resolve(path.join(__dirname, ".."));
 }
 
