@@ -1,7 +1,17 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const { spawn } = require("child_process");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+
+/** Repo root that contains `Snaplytics/` and `.env` (defaults to parent of this app). */
+function getMonorepoRoot() {
+    const raw =
+        process.env.HEIGEN_MONOREPO_ROOT || process.env.HEIGEN_REPO_ROOT || "";
+    const t = String(raw).trim();
+    if (t) return path.resolve(t);
+    return path.resolve(path.join(__dirname, ".."));
+}
+
+require("dotenv").config({ path: path.join(getMonorepoRoot(), ".env") });
 
 let djangoProcess;
 let mainWindow;
@@ -36,8 +46,8 @@ const djangoReadyPromise = new Promise((resolve) => {
 });
 
 function startDjango() {
-    // Path to Django project (Snaplytics backend - sibling folder)
-    const snaplyticsRoot = path.join(__dirname, "../Snaplytics");
+    // Path to Django project (Snaplytics backend — sibling of electron-app in the monorepo)
+    const snaplyticsRoot = path.join(getMonorepoRoot(), "Snaplytics");
     djangoProcess = spawn(
         PYTHON_EXECUTABLE,
         [path.join(snaplyticsRoot, "manage.py"), "runserver"],

@@ -27,7 +27,7 @@ Dependencies are managed in `package.json`:
 - `electron` (dev dependency)
 - `dotenv`
 
-Install and run:
+Install and run from a shell:
 
 ```bash
 cd electron-app
@@ -35,9 +35,21 @@ npm install
 npm start
 ```
 
+## Run from desktop (no `npm start` typing)
+
+Requires **Node.js** and **npm** on your PATH (same as `npm start`).
+
+| OS | What to do |
+|----|----------------|
+| **Windows** | Double-click `electron-app/Heigen-Admin.bat`, or copy a shortcut to your Desktop. |
+| **macOS** | Double-click `electron-app/Heigen-Admin.command` (opens Terminal briefly, then Electron). |
+| **Linux** | Run `chmod +x Heigen-Admin.sh` once, then double-click `Heigen-Admin.sh` if your file manager allows, **or** run `npm run desktop:install-menu` to add an app-menu entry (and a Desktop symlink when `~/Desktop` exists). |
+
+The launch scripts set `HEIGEN_MONOREPO_ROOT` to the parent folder of `electron-app` so Django can find `Snaplytics/`. Override with env `HEIGEN_MONOREPO_ROOT` (or legacy `HEIGEN_REPO_ROOT`) if your layout differs.
+
 ## Notes
 
-- Start Django (`Snaplytics/`) before using API-backed screens.
+- Electron starts Django from `Snaplytics/manage.py` on launch (see `main.js`).
 - If environment variables are needed, define them in a local `.env` file.
 - Staff auth token is required for protected API endpoints.
 - Staff shell kiosk modal auto-detects Expo web using a smart scan (priority ports + local ranges like `8090-8110`) and uses the first reachable URL.
