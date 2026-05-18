@@ -1,0 +1,53 @@
+# AGENTS.md
+
+## Cursor Cloud specific instructions
+
+### Architecture
+
+- **Snaplytics** (Django REST API) — backend on port 8000
+- **electron-app** (Electron) — staff desktop admin (requires display; not runnable headless)
+- **HeigenKiosk** (Expo/React Native) — customer kiosk, runs on web via `npm start` (port 8090)
+- **HeigenKiosk-apk** — standalone variant using Supabase (requires external Supabase project)
+
+### Database
+
+The project uses a remote Supabase PostgreSQL instance (configured in `.env` at repo root). Django settings enforce `sslmode: require`, which is correct for Supabase pooler connections.
+
+- `.env` must contain `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` pointing to Supabase.
+- Alternatively, local PostgreSQL 16 can be used: `sudo pg_ctlcluster 16 main start` (SSL works by default on Ubuntu PG).
+- API responses are slower (~3-4s) due to remote DB latency; this is normal.
+
+### Starting services
+
+```bash
+# 1. Start PostgreSQL (if not running)
+sudo pg_ctlcluster 16 main start
+
+# 2. Start Django backend
+cd Snaplytics && source .venv/bin/activate && python manage.py runserver 0.0.0.0:8000
+
+# 3. Start Kiosk web (separate terminal)
+cd HeigenKiosk && npm start
+# Serves on http://localhost:8090
+```
+
+### Dev account
+
+```bash
+cd Snaplytics && source .venv/bin/activate
+python manage.py create_dev_account --username zxcdev --password zxcdev
+```
+
+Login: `POST /api/auth/login/` with `{"email":"zxcdev","password":"zxcdev"}` → returns token.
+
+### Gotchas
+
+- **No lint config exists** — no ESLint, flake8, pyproject.toml, or other linter configured in this repo.
+- **Django test files are empty stubs** — `endpoints/tests.py` and `backend/tests.py` have no tests. Use `python manage.py test` to run (0 tests currently).
+- **SMTP errors are non-fatal** — booking creation triggers email sending which fails without SMTP creds. The booking still succeeds (201). Set `EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend` in `.env` to silence.
+- **PySpark JAVA_HOME** — `test.py` at Snaplytics root is a standalone Spark diagnostic (Windows-centric). PySpark functionality works in the recommender module with `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64`.
+- **Electron app** renders blank in Cloud Agent VMs due to `file://` protocol blocking Tailwind CDN. Workaround: serve via HTTP with `cd electron-app && npx serve . -l 5501` and open http://localhost:5501 in Chrome. This gives the same UI as the Electron shell.
+- **Electron native launch** (`npm start`) works on machines with GPU/display support but shows a blank white screen in Cloud Agent VMs even with `--disable-gpu`.
+- **Kiosk auto-resets** after successful booking (4-second timeout). This is expected behavior, not an error.
+- **Django `system check`** passes clean: `python manage.py check` → "System check identified no issues."
+- **Web build**: `cd HeigenKiosk && npx expo export --platform web` produces static bundle in `dist/`.
