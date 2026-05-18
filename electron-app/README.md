@@ -73,7 +73,7 @@ python -m pip install -r requirements.txt
 
 Optional: copy a `.env` next to `resources` (same folder that contains `Snaplytics`) or set `HEIGEN_MONOREPO_ROOT` if you relocate the backend.
 
-Icons for the packaged app, shortcuts, and taskbar use **`assets/splash-heigen.png`** (see `build.icon` in `package.json` and `main.js`).
+Icons for the packaged app, shortcuts, and taskbar use **`assets/splash-heigen.png`** (see `build.icon` in `package.json` and `main.js`). **Windows** installers and `.exe` targets use **`build.win.icon`** → **`.icon-ico/icon.ico`** so your hand-tuned ICO is used instead of auto-converting the wide splash PNG (which changes how it looks).
 
 ## Notes
 
