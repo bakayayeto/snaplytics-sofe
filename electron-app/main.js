@@ -3,10 +3,17 @@ const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
 
-/** Window / packaged-app branding (same asset as splash + electron-builder icon). */
-const APP_ICON_PATH = path.join(__dirname, "assets", "splash-heigen.png");
+/** Window icon: prefer Windows .ico (no PNG→ICO resize); else splash PNG. */
+const WIN_ICON_ICO = path.join(__dirname, ".icon-ico", "icon.ico");
+const APP_ICON_PNG = path.join(__dirname, "assets", "splash-heigen.png");
 function windowIconOptions() {
-    return fs.existsSync(APP_ICON_PATH) ? { icon: APP_ICON_PATH } : {};
+    if (process.platform === "win32" && fs.existsSync(WIN_ICON_ICO)) {
+        return { icon: WIN_ICON_ICO };
+    }
+    if (fs.existsSync(APP_ICON_PNG)) {
+        return { icon: APP_ICON_PNG };
+    }
+    return {};
 }
 
 /** Repo root that contains `Snaplytics/` and `.env` (defaults to parent of this app). */
