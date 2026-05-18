@@ -24,8 +24,6 @@ export default function PackageScreen({
     onSelectPackage,
     onBack,
     kioskSnapshot = null,
-    loyaltyBalance = 0,
-    loyaltySettings = null,
 }) {
     const { s, fs, isTablet, W } = useScale();
     const [scrollY, setScrollY] = useState(0);
@@ -89,13 +87,6 @@ export default function PackageScreen({
     const canScrollDown = maxScroll > s(8);
     const isNearBottom = scrollY >= maxScroll - s(20);
     const showScrollHint = canScrollDown && !isNearBottom;
-    const balanceNum = Number(loyaltyBalance);
-    const balanceLabel = formatLoyaltyPts(balanceNum);
-    const claimableCount = loyaltySettings
-        ? orderedPackages.filter((p) =>
-              isPackageClaimableWithBalance(balanceNum, p, loyaltySettings),
-          ).length
-        : 0;
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -151,59 +142,6 @@ export default function PackageScreen({
                 >
                     for {catName}
                 </Text>
-                {loyaltySettings && (
-                    <View
-                        style={{
-                            marginTop: s(spacing.lg),
-                            width: "100%",
-                            maxWidth: isTablet ? 560 : 400,
-                            backgroundColor: colors.card,
-                            borderRadius: s(radii.lg),
-                            borderWidth: 1,
-                            borderColor: colors.border,
-                            paddingVertical: s(spacing.md),
-                            paddingHorizontal: s(spacing.lg),
-                            ...shadow.sm,
-                        }}
-                    >
-                        <Text
-                            style={{
-                                fontSize: fs(13),
-                                fontWeight: "700",
-                                color: colors.primary,
-                            }}
-                            allowFontScaling={false}
-                        >
-                            Your loyalty balance: {balanceLabel} pts
-                        </Text>
-                        <Text
-                            style={{
-                                fontSize: fs(12),
-                                color: colors.mutedForeground,
-                                marginTop: s(6),
-                                lineHeight: fs(17),
-                            }}
-                            allowFontScaling={false}
-                        >
-                            Each package displays the number of points required to redeem
-                            it at the studio, where staff will assign your package.
-                        </Text>
-                        {claimableCount > 0 && (
-                            <Text
-                                style={{
-                                    fontSize: fs(12),
-                                    fontWeight: "700",
-                                    color: colors.success,
-                                    marginTop: s(spacing.sm),
-                                }}
-                                allowFontScaling={false}
-                            >
-                                You can redeem points for {claimableCount}{" "}
-                                package{claimableCount === 1 ? "" : "s"} in this category.
-                            </Text>
-                        )}
-                    </View>
-                )}
             </View>
 
                 <View
@@ -222,8 +160,8 @@ export default function PackageScreen({
                             s={s}
                             fs={fs}
                             width={cardWidth}
-                            loyaltyBalance={balanceNum}
-                            loyaltySettings={loyaltySettings}
+                            loyaltyBalance={0}
+                            loyaltySettings={null}
                         />
                     ))}
                 </View>
@@ -621,11 +559,4 @@ function PackageCard({
             </View>
         </TouchableOpacity>
     );
-}
-
-/** Whole numbers without ".0"; one decimal when needed (e.g. 7.5 pts). */
-function formatLoyaltyPts(n) {
-    if (!Number.isFinite(n)) return "0";
-    const r = Math.round(n * 10) / 10;
-    return Number.isInteger(r) ? String(r) : r.toFixed(1);
 }
