@@ -21,6 +21,7 @@
     "directories": {
       "output": "release"
     },
+    "icon": "assets/splash-heigen.png",
     "files": [
       "**/*",
       "!release/**",

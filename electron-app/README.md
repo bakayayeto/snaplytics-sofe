@@ -71,6 +71,8 @@ python -m pip install -r requirements.txt
 
 Optional: copy a `.env` next to `resources` (same folder that contains `Snaplytics`) or set `HEIGEN_MONOREPO_ROOT` if you relocate the backend.
 
+Icons for the packaged app, shortcuts, and taskbar use **`assets/splash-heigen.png`** (see `build.icon` in `package.json` and `main.js`).
+
 ## Notes
 
 - Electron starts Django from `Snaplytics/manage.py` on launch (see `main.js`).
